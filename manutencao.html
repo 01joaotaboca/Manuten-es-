@@ -1,0 +1,2720 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0d1117">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-title" content="Manutenção">
+<title>Grupo agro - Manutenção</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#0d1117;--surface:#161b22;--surface2:#1c2331;
+  --border:#30363d;--text:#e6edf3;--muted:#8b949e;
+  --green:#3fb950;--yellow:#d29922;--red:#f85149;
+  --blue:#58a6ff;--accent:#ffa726;
+}
+body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;min-height:100vh;padding-bottom:70px;}
+
+/* ---- LOGIN ---- */
+#loginScreen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+.login-logo{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.6rem;color:var(--accent);letter-spacing:1px;margin-bottom:2px;}
+.login-sub{font-size:.7rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:26px;}
+.user-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:380px;}
+.user-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:18px 8px;text-align:center;cursor:pointer;transition:.15s;
+}
+.user-card:active{transform:scale(.96);background:var(--surface2);border-color:var(--accent);}
+.user-icon{font-size:1.9rem;margin-bottom:6px;}
+.user-nome{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.85rem;}
+
+.usr-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
+.usr-item-icon{font-size:1.5rem;width:32px;text-align:center;flex-shrink:0;}
+.usr-item-info{flex:1;min-width:0;}
+.usr-item-nome{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.95rem;}
+.usr-item-tag{font-size:.68rem;color:var(--accent);}
+.btn-hdr-icon{background:transparent;border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px 9px;font-size:.9rem;cursor:pointer;}
+
+/* ---- HEADER ---- */
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:2px solid var(--accent);padding:12px 16px;background:var(--surface);
+  position:sticky;top:0;z-index:10;
+}
+.logo-text{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.15rem;letter-spacing:1px;color:var(--accent);}
+.logo-sub{font-size:.58rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
+.hdr-user{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--muted);}
+.btn-logout{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:5px 9px;font-size:.7rem;cursor:pointer;}
+
+main{padding:14px;max-width:520px;margin:0 auto;}
+.view{display:none;}
+.view.active{display:block;}
+
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted);}
+.empty-state .ei{font-size:2.2rem;margin-bottom:8px;}
+
+/* ---- MACHINE LIST (HOME) ---- */
+.section-title{
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.85rem;
+  letter-spacing:2px;text-transform:uppercase;color:var(--muted);
+  display:flex;align-items:center;gap:8px;margin:4px 0 10px;
+}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+.maq-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  margin-bottom:10px;padding:13px 14px;display:flex;align-items:center;gap:12px;
+  cursor:pointer;border-left:4px solid var(--border);
+}
+.maq-card.st-ok{border-left-color:var(--green);}
+.maq-card.st-alert{border-left-color:var(--yellow);border-left-width:6px;background:rgba(210,153,34,.07);}
+.maq-card.st-over{border-left-color:var(--red);}
+.maq-icon{font-size:1.5rem;width:38px;text-align:center;}
+.maq-icon-wrap{position:relative;width:38px;flex-shrink:0;}
+.maq-alert-badge{
+  position:absolute;top:-6px;right:-2px;background:var(--red);color:#fff;
+  width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:.68rem;box-shadow:0 0 0 2px var(--surface);animation:pulseAlert 1.4s infinite;
+}
+@keyframes pulseAlert{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
+.maq-alert-badge-yellow{background:var(--yellow);color:#1a1400;}
+.manut-desc-wrap{display:flex;align-items:center;gap:6px;}
+.manut-alert-icon{color:var(--red);font-size:.85rem;animation:pulseAlert 1.4s infinite;}
+.maq-info{flex:1;min-width:0;}
+.maq-nome{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.maq-meta{font-size:.7rem;color:var(--muted);}
+.maq-horim{font-family:'Share Tech Mono',monospace;color:var(--blue);font-size:.85rem;white-space:nowrap;}
+.maq-badge{font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:20px;margin-top:3px;display:inline-block;}
+.maq-badge.st-ok{background:rgba(63,185,80,.14);color:var(--green);}
+.maq-badge.st-alert{background:var(--yellow);color:#1a1400;}
+.maq-badge.st-over{background:rgba(248,81,73,.16);color:var(--red);}
+
+/* ---- ALARME DE MANUTENÇÃO VENCIDA ---- */
+.home-alarm{
+  background:rgba(248,81,73,.14);border:1px solid var(--red);border-radius:10px;
+  padding:12px 14px;margin-bottom:14px;display:none;align-items:center;gap:10px;
+  animation:pulseAlarmBg 1.4s infinite;
+}
+.home-alarm.show{display:flex;}
+@keyframes pulseAlarmBg{0%,100%{box-shadow:0 0 0 0 rgba(248,81,73,.35);}50%{box-shadow:0 0 0 6px rgba(248,81,73,0);}}
+.home-alarm-icon{font-size:1.6rem;animation:pulseAlert 1.4s infinite;flex-shrink:0;}
+.home-alarm-text{flex:1;font-size:.82rem;line-height:1.35;}
+.home-alarm-text b{font-family:'Rajdhani',sans-serif;color:var(--red);}
+.home-alarm-mute{
+  background:transparent;border:1px solid rgba(248,81,73,.4);color:var(--red);
+  border-radius:6px;padding:6px 9px;font-size:.9rem;cursor:pointer;flex-shrink:0;
+}
+.maq-card.st-over{animation:pulseCardOver 1.4s infinite;}
+@keyframes pulseCardOver{0%,100%{box-shadow:0 0 0 0 rgba(248,81,73,.3);}50%{box-shadow:0 0 0 4px rgba(248,81,73,0);}}
+
+/* ---- SELETOR DE EMOJIS ---- */
+.emoji-modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;
+  align-items:flex-end;justify-content:center;
+}
+.emoji-modal-overlay.show{display:flex;}
+.emoji-modal{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px 16px 0 0;
+  width:100%;max-width:480px;max-height:78vh;padding:16px 16px 20px;overflow-y:auto;
+}
+.emoji-modal-head{
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent);
+  font-size:1rem;margin-bottom:10px;
+}
+.emoji-modal-head button{background:transparent;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:4px 8px;}
+.emoji-fav-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.emoji-fav-row .emoji-btn{background:rgba(255,184,0,.1);border-color:rgba(255,184,0,.3);}
+.emoji-grid{
+  display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:12px;
+}
+.emoji-btn{
+  background:var(--bg);border:1px solid var(--border);border-radius:8px;
+  font-size:1.35rem;padding:8px 0;cursor:pointer;line-height:1;
+}
+.emoji-btn:active{background:var(--accent);}
+.emoji-custom-row{display:flex;gap:8px;}
+.emoji-custom-row input{
+  flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;
+  color:var(--text);padding:10px 12px;font-size:.95rem;
+}
+
+/* ---- DETAIL VIEW ---- */
+.btn-back{background:transparent;border:none;color:var(--accent);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;padding:6px 0 14px;}
+.detail-head{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+.detail-icon{font-size:2rem;}
+.detail-nome{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.15rem;}
+.detail-horim{font-family:'Share Tech Mono',monospace;color:var(--blue);font-size:.85rem;}
+.btn-del-maq{
+  background:rgba(248,81,73,.12);color:var(--red);border:1px solid rgba(248,81,73,.35);
+  border-radius:6px;padding:7px 10px;font-family:'Rajdhani',sans-serif;font-weight:700;
+  font-size:.72rem;cursor:pointer;white-space:nowrap;align-self:flex-start;
+}
+.usr-action-btn{
+  background:var(--surface2);color:var(--text);border:1px solid var(--border);
+  border-radius:14px;padding:5px 10px;font-family:'Rajdhani',sans-serif;font-weight:600;
+  font-size:.68rem;cursor:pointer;white-space:nowrap;line-height:1.4;
+}
+.usr-action-btn.danger{
+  background:rgba(248,81,73,.1);color:var(--red);border-color:rgba(248,81,73,.3);
+}
+
+.manut-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;}
+.manut-row{padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.btn-del-manut{
+  background:rgba(248,81,73,.12);color:var(--red);border:1px solid rgba(248,81,73,.35);
+  border-radius:6px;padding:7px 9px;font-size:.85rem;cursor:pointer;flex-shrink:0;
+}
+.manut-desc{font-weight:600;font-size:.92rem;}
+.manut-sub{font-size:.72rem;color:var(--muted);margin-top:2px;}
+.manut-sub.st-over{color:var(--red);}
+.manut-sub.st-alert{color:var(--yellow);}
+.btn-reg{
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.72rem;border-radius:6px;
+  padding:7px 10px;cursor:pointer;white-space:nowrap;border:1px solid;
+}
+.btn-reg.st-ok{background:transparent;color:var(--muted);border-color:var(--border);}
+.btn-reg.st-alert{background:rgba(210,153,34,.12);color:var(--yellow);border-color:rgba(210,153,34,.4);}
+.btn-reg.st-over{background:rgba(248,81,73,.14);color:var(--red);border-color:rgba(248,81,73,.4);}
+
+.reg-panel{padding:14px;border-top:1px solid var(--border);background:var(--surface2);display:none;}
+.reg-panel.open{display:block;}
+
+/* ---- COMBUSTÍVEL ---- */
+.tank-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px;}
+.tank-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.tank-titulo{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:6px;}
+.tank-litros{font-family:'Share Tech Mono',monospace;font-size:1.1rem;color:var(--blue);}
+.tank-bar-bg{background:var(--bg);border:1px solid var(--border);border-radius:20px;height:14px;overflow:hidden;margin-bottom:6px;}
+.tank-bar-fill{height:100%;background:var(--green);transition:.3s;}
+.tank-bar-fill.st-alert{background:var(--yellow);}
+.tank-bar-fill.st-over{background:var(--red);}
+.tank-sub{font-size:.7rem;color:var(--muted);}
+.fuel-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;padding:13px 14px;}
+.fuel-card-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.fuel-icon{font-size:1.4rem;width:34px;text-align:center;}
+.fuel-nome{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.92rem;}
+.fuel-meta{font-size:.68rem;color:var(--muted);}
+.fuel-stats{display:flex;gap:14px;margin-top:2px;flex-wrap:wrap;}
+.fuel-stat{font-size:.72rem;color:var(--muted);}
+.fuel-stat b{color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:.85rem;}
+.abast-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.abast-info{flex:1;min-width:0;font-size:.78rem;}
+.abast-top{display:flex;justify-content:space-between;gap:8px;font-weight:600;}
+.abast-litros{color:var(--blue);font-family:'Share Tech Mono',monospace;}
+.abast-valor{color:var(--green);font-family:'Share Tech Mono',monospace;font-size:.75rem;}
+.abast-meta{font-size:.68rem;color:var(--muted);margin-top:2px;}
+.btn-del-abast{background:rgba(248,81,73,.12);color:var(--red);border:1px solid rgba(248,81,73,.35);border-radius:6px;padding:7px 9px;font-size:.85rem;cursor:pointer;flex-shrink:0;}
+.reg-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.85rem;color:var(--accent);margin-bottom:10px;}
+.reg-field{margin-bottom:9px;}
+.reg-field label{display:block;font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.reg-field input,.reg-field textarea{
+  width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;
+  padding:8px 10px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:.85rem;
+}
+.reg-field textarea{resize:vertical;min-height:44px;}
+.reg-actions{display:flex;gap:8px;margin-top:4px;}
+.btn-ok{flex:1;background:var(--green);color:#000;border:none;border-radius:6px;padding:10px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;}
+.btn-cancel{background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:10px 14px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;}
+.reg-static-date{font-family:'Share Tech Mono',monospace;font-size:.82rem;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 12px;}
+.reg-hint{font-size:.68rem;color:var(--accent);opacity:.85;line-height:1.35;margin-top:5px;}
+
+/* ---- HISTÓRICO ---- */
+.hist-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;}
+.hist-filtro{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:12px;}
+.hist-filtro-titulo{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.hist-filtro-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.hist-chip{border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-size:.75rem;cursor:pointer;background:transparent;color:var(--muted);font-family:'Rajdhani',sans-serif;font-weight:600;}
+.hist-chip.active{background:rgba(255,167,38,.15);border-color:var(--accent);color:var(--accent);}
+.btn-del-hist{background:transparent;border:none;color:var(--red);font-size:1rem;cursor:pointer;padding:2px 4px;flex-shrink:0;}
+.hist-top{display:flex;justify-content:space-between;font-size:.82rem;font-weight:600;}
+.hist-data{font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--muted);margin-top:2px;}
+.hist-meta{font-size:.75rem;color:var(--muted);margin-top:4px;}
+.hist-actions-bar{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+.btn-pdf{background:rgba(255,167,38,.12);color:var(--accent);border:1px solid rgba(255,167,38,.35);border-radius:6px;padding:8px 14px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;}
+
+/* ---- HORÍMETRO ---- */
+.hz-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;padding:13px 14px;}
+.hz-card.st-over{border:1px solid var(--red);background:rgba(248,81,73,.08);}
+.hz-warn{color:var(--red);font-size:.74rem;margin-top:8px;display:flex;align-items:center;gap:6px;font-weight:700;}
+.hz-head{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.hz-icon{font-size:1.5rem;width:38px;text-align:center;}
+.hz-nome{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;}
+.hz-last{font-size:.72rem;color:var(--muted);}
+.hz-form{display:flex;gap:8px;}
+.hz-form input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:.85rem;}
+.hz-form button{background:var(--green);color:#000;border:none;border-radius:6px;padding:8px 14px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;white-space:nowrap;}
+
+/* ---- CADASTRO ---- */
+.reg-field select{
+  width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;
+  padding:8px 10px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:.85rem;
+}
+.cad-tabs{display:flex;gap:8px;margin-bottom:16px;}
+.cad-tab-btn{flex:1;border:1px solid var(--border);border-radius:10px;padding:10px 8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;background:var(--surface);color:var(--muted);text-align:center;}
+.cad-tab-btn.active{background:rgba(255,167,38,.14);border-color:var(--accent);color:var(--accent);}
+.cad-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.cad-list-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
+.cad-list-item-icon{font-size:1.4rem;width:32px;text-align:center;flex-shrink:0;}
+.cad-list-item-info{flex:1;min-width:0;}
+.cad-list-item-nome{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.9rem;}
+.cad-list-item-sub{font-size:.7rem;color:var(--muted);margin-top:2px;}
+.cad-list-actions{display:flex;gap:5px;flex-shrink:0;}
+
+/* ---- CHAT ---- */
+#view-chat{
+  position:fixed;left:0;right:0;z-index:5;
+  flex-direction:column;background:var(--bg);
+}
+#view-chat.active{display:flex;}
+.chat-messages{flex:1;overflow-y:auto;padding:14px 14px 6px;display:flex;flex-direction:column;gap:8px;}
+.chat-msg{max-width:78%;padding:8px 12px;border-radius:14px;font-size:.85rem;line-height:1.35;word-break:break-word;}
+.chat-msg.mine{align-self:flex-end;background:var(--accent);color:#241a05;border-bottom-right-radius:4px;}
+.chat-msg.other{align-self:flex-start;background:var(--surface);border:1px solid var(--border);border-bottom-left-radius:4px;}
+.chat-meta{font-size:.62rem;color:var(--muted);margin-bottom:2px;}
+.chat-msg.mine .chat-meta{color:rgba(36,26,5,.6);}
+.chat-msg .chat-time{font-size:.6rem;color:var(--muted);margin-top:3px;text-align:right;}
+.chat-msg.mine .chat-time{color:rgba(36,26,5,.55);}
+.chat-inputbar{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--border);background:var(--surface);flex-shrink:0;}
+.chat-inputbar input{
+  flex:1;background:var(--bg);border:1px solid var(--border);border-radius:20px;
+  padding:10px 14px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:.85rem;
+}
+.chat-btn-mic{
+  background:var(--surface2);color:var(--accent);border:1px solid var(--border);border-radius:50%;
+  width:40px;height:40px;font-size:1.05rem;cursor:pointer;flex-shrink:0;
+}
+.chat-btn-send{
+  background:var(--accent);color:#000;border:none;border-radius:50%;
+  width:40px;height:40px;font-size:1rem;cursor:pointer;flex-shrink:0;
+}
+.chat-recording-bar{
+  display:none;align-items:center;gap:10px;padding:10px 14px;
+  border-top:1px solid var(--border);background:var(--surface);flex-shrink:0;
+}
+.chat-rec-indicator{flex:1;display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--red);font-family:'Share Tech Mono',monospace;}
+.chat-rec-dot{width:9px;height:9px;border-radius:50%;background:var(--red);animation:pulse-dot 1s infinite;}
+@keyframes pulse-dot{0%,100%{opacity:1;}50%{opacity:.25;}}
+.chat-btn-cancel-rec{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:50%;width:36px;height:36px;cursor:pointer;flex-shrink:0;font-size:.9rem;}
+.chat-btn-stop-rec{background:var(--red);color:#fff;border:none;border-radius:20px;padding:0 16px;height:36px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;flex-shrink:0;white-space:nowrap;}
+.chat-msg audio{display:block;margin-top:3px;width:210px;height:36px;}
+
+/* ---- BOTTOM NAV ---- */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);
+  display:flex;z-index:20;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+}
+.bottom-nav::-webkit-scrollbar{display:none;}
+.bottom-nav button{
+  flex:0 0 auto;min-width:72px;background:none;border:none;color:var(--muted);padding:11px 10px;
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.72rem;cursor:pointer;white-space:nowrap;
+}
+@media (min-width:520px){
+  .bottom-nav button{flex:1 1 0;}
+}
+.bottom-nav button.active{color:var(--accent);}
+.bottom-nav button{position:relative;}
+.nav-alert-dot{position:absolute;top:2px;right:calc(50% - 24px);width:9px;height:9px;border-radius:50%;background:var(--red);box-shadow:0 0 0 2px var(--surface);animation:pulseAlert 1.4s infinite;}
+
+#toast{
+  position:fixed;bottom:70px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 16px;
+  font-size:.82rem;opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:88%;text-align:center;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#toast.green{border-color:var(--green);color:var(--green);}
+#toast.red{border-color:var(--red);color:var(--red);}
+#toast.yellow{border-color:var(--yellow);color:var(--yellow);}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-logo">🔧 GRUPO Agro</div>
+  <div class="login-sub">Quem é você?</div>
+  <div class="user-grid" id="userGrid"></div>
+  <div id="loginStatus" style="margin-top:18px;font-size:.78rem;color:var(--muted);text-align:center;max-width:340px;"></div>
+  <div style="margin-top:32px;font-size:.68rem;color:var(--muted);text-align:center;">Desenvolvido por João Divino Barbosa © 2026</div>
+</div>
+
+<!-- APP -->
+<div id="appScreen" style="display:none;">
+  <header>
+    <div>
+      <div class="logo-text">🔧 Manutenção</div>
+      <div class="logo-sub">Grupo agro</div>
+    </div>
+    <div class="hdr-user">
+      <span id="syncStatus" title="Status de conexão" style="font-size:.9rem;"></span>
+      <span id="hdrUserIcon"></span><span id="hdrUserNome"></span>
+      <button id="btnUsuarios" class="btn-hdr-icon" style="display:none;" onclick="showUsuarios()" title="Gerenciar usuários">👥</button>
+      <button id="btnInstall" class="btn-logout" style="display:none;" onclick="instalarApp()">📲 Instalar</button>
+      <button class="btn-logout" onclick="compartilharApp()" title="Compartilhar app">🔗 Compartilhar</button>
+      <button class="btn-logout" onclick="logout()">Sair</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <div class="view active" id="view-home">
+      <div class="home-alarm" id="homeAlarm">
+        <div class="home-alarm-icon">🚨</div>
+        <div class="home-alarm-text" id="homeAlarmText"></div>
+        <button class="home-alarm-mute" id="homeAlarmWaBtn" onclick="abrirNotificarWhatsapp()" title="Notificar via WhatsApp">📲</button>
+        <button class="home-alarm-mute" id="homeAlarmMuteBtn" onclick="silenciarAlarme()" title="Silenciar som">🔊</button>
+      </div>
+      <div class="section-title">🚜 Máquinas</div>
+      <div id="maqList"></div>
+    </div>
+
+    <!-- DETAIL -->
+    <div class="view" id="view-detail">
+      <button class="btn-back" onclick="showHome()">← Voltar</button>
+      <div class="detail-head" id="detailHead"></div>
+      <div class="section-title">🛠️ Manutenções</div>
+      <div id="manutList"></div>
+    </div>
+
+    <!-- USUÁRIOS (SOMENTE ADM) -->
+    <div class="view" id="view-usuarios">
+      <button class="btn-back" onclick="showHome()">← Voltar</button>
+      <div class="section-title">👥 Gerenciar Usuários</div>
+      <div class="cad-card">
+        <div class="reg-field">
+          <label>Nome</label>
+          <input type="text" id="us-nome" placeholder="Ex: Carlos Silva">
+        </div>
+        <div class="reg-field">
+          <label>Ícone (emoji)</label>
+          <input type="text" id="us-icon" placeholder="Ex: 👨‍🌾" maxlength="4">
+        </div>
+        <div class="reg-field">
+          <label>WhatsApp (com DDD)</label>
+          <input type="tel" id="us-telefone" placeholder="Ex: (34) 99999-8888">
+        </div>
+        <div class="reg-field" style="display:flex;align-items:center;gap:8px;flex-direction:row;">
+          <input type="checkbox" id="us-admin" style="width:auto;">
+          <label style="margin:0;">É ADM (pode remover, editar datas, etc.)</label>
+        </div>
+        <button class="btn-ok" style="width:100%" onclick="salvarNovoUsuario()">➕ Adicionar pessoa</button>
+      </div>
+      <div class="section-title">Pessoas cadastradas</div>
+      <div id="usuariosList"></div>
+      <div class="section-title">Backup</div>
+      <div class="cad-card">
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:10px;">Baixa um arquivo .json com todos os dados do app (máquinas, manutenções, histórico, usuários, combustível etc.) como cópia de segurança.</div>
+        <button class="btn-ok" style="width:100%" onclick="exportarBackupCompleto()">💾 Exportar backup completo</button>
+      </div>
+    </div>
+
+    <!-- HORÍMETRO -->
+    <div class="view" id="view-horim">
+      <div class="section-title">⏱ Atualizar Horímetro</div>
+      <div id="horimList"></div>
+    </div>
+
+    <!-- COMBUSTÍVEL -->
+    <div class="view" id="view-combustivel">
+      <div class="section-title">⛽ Estoque de Combustível</div>
+      <div class="tank-card">
+        <div class="tank-head">
+          <div class="tank-titulo">🛢️ Estoque atual</div>
+          <div class="tank-litros" id="estoqueLitrosTxt">0 L</div>
+        </div>
+        <div class="tank-bar-bg"><div class="tank-bar-fill" id="estoqueBarFill" style="width:0%"></div></div>
+        <div class="tank-sub" id="estoqueSub">—</div>
+      </div>
+      <div class="cad-card">
+        <div class="reg-field">
+          <label>Capacidade total do estoque (L) — opcional, só para a barra</label>
+          <input type="number" id="es-capacidade" min="0" step="1" placeholder="Ex: 5000">
+        </div>
+        <div class="reg-field">
+          <label>Entrada de combustível (L)</label>
+          <input type="number" id="es-entrada" min="0" step="1" placeholder="Ex: 1000" oninput="calcularPrecoEntrada()">
+        </div>
+        <div class="reg-field">
+          <label>Valor total pago (R$)</label>
+          <input type="number" id="es-valortotal" min="0" step="0.01" placeholder="Ex: 6150.00" oninput="calcularPrecoEntrada()">
+        </div>
+        <div class="reg-field" id="es-preco-wrap" style="display:none;">
+          <label>Preço unitário calculado</label>
+          <div id="es-preco-calc" style="font-family:'Share Tech Mono',monospace;color:var(--accent);font-size:.95rem;padding:4px 0;">—</div>
+        </div>
+        <div class="reg-field">
+          <label>Observação (opcional)</label>
+          <input type="text" id="es-obs" placeholder="Ex: NF 1234, fornecedor XYZ">
+        </div>
+        <div class="reg-field">
+          <label>Foto da nota fiscal (opcional)</label>
+          <input type="file" id="es-foto" accept="image/*" capture="environment">
+        </div>
+        <button class="btn-ok" style="width:100%" onclick="salvarEntradaEstoque()">➕ Registrar entrada no estoque</button>
+      </div>
+
+      <div class="section-title">⛽ Registrar Abastecimento</div>
+      <div class="cad-card">
+        <div class="reg-field">
+          <label>Máquina</label>
+          <select id="ab-maquina" onchange="atualizarHorimAbastecimento()"></select>
+        </div>
+        <div class="reg-field">
+          <label>Horímetro no abastecimento (h)</label>
+          <input type="number" id="ab-horim" min="0" step="0.1">
+        </div>
+        <div class="reg-field">
+          <label>Litros abastecidos</label>
+          <input type="number" id="ab-litros" min="0" step="0.1" placeholder="Ex: 80">
+        </div>
+        <div class="reg-field">
+          <label>Preço do combustível (R$/L)</label>
+          <input type="number" id="ab-preco" min="0" step="0.01" placeholder="Ex: 6.15">
+        </div>
+        <div class="reg-field">
+          <label>Responsável</label>
+          <input type="text" id="ab-resp" placeholder="Nome de quem abasteceu">
+        </div>
+        <div class="reg-field">
+          <label>Observações (opcional)</label>
+          <input type="text" id="ab-obs" placeholder="Ex: tanque cheio">
+        </div>
+        <div class="reg-field">
+          <label>Foto da nota fiscal (opcional)</label>
+          <input type="file" id="ab-foto" accept="image/*" capture="environment">
+        </div>
+        <button class="btn-ok" style="width:100%" onclick="salvarAbastecimento()">⛽ Registrar abastecimento</button>
+      </div>
+
+      <div class="section-title">📊 Consumo médio por máquina</div>
+      <div id="fuelStatsList"></div>
+
+      <button class="btn-pdf" style="width:100%;margin-bottom:14px;" onclick="gerarPDFCombustivel()">📄 Relatório de Combustível (PDF)</button>
+
+      <div class="section-title">📋 Últimos abastecimentos</div>
+      <div id="abastList"></div>
+    </div>
+
+    <!-- TERCEIRIZADOS -->
+    <div class="view" id="view-terceirizados">
+      <div class="section-title">🤝 Terceirizados</div>
+
+      <div class="cad-card">
+        <div class="reg-title">➕ Novo prestador/terceirizado</div>
+        <div class="reg-field">
+          <label>Nome (pessoa, empresa ou máquina terceirizada)</label>
+          <input type="text" id="tc-nome" placeholder="Ex: José (trator alugado)">
+        </div>
+        <div class="reg-field">
+          <label>Ícone (emoji, opcional)</label>
+          <input type="text" id="tc-icon" placeholder="Ex: 🤝" maxlength="4">
+        </div>
+        <button class="btn-ok" style="width:100%" onclick="salvarNovoTerceirizado()">➕ Adicionar terceirizado</button>
+      </div>
+
+      <div class="cad-card">
+        <div class="reg-title">⏱⛽ Lançar horas e combustível</div>
+        <div class="reg-field">
+          <label>Terceirizado</label>
+          <select id="tc-select" onchange="atualizarHorimTerceirizado()"></select>
+        </div>
+        <div class="reg-field">
+          <label>Data</label>
+          <input type="date" id="tc-data">
+        </div>
+        <div class="reg-field">
+          <label>Horímetro inicial (h)</label>
+          <input type="number" id="tc-horim-ini" min="0" step="0.1">
+          <div class="reg-hint" id="tc-horim-hint"></div>
+        </div>
+        <div class="reg-field">
+          <label>Horímetro final (h)</label>
+          <input type="number" id="tc-horim-fim" min="0" step="0.1" placeholder="Ex: 8.5">
+        </div>
+        <div class="reg-field">
+          <label>Combustível utilizado (L) — opcional</label>
+          <input type="number" id="tc-litros" min="0" step="0.1" placeholder="Ex: 40">
+        </div>
+        <div class="reg-field">
+          <label>Responsável pelo lançamento</label>
+          <input type="text" id="tc-resp" placeholder="Nome de quem lançou">
+        </div>
+        <div class="reg-field">
+          <label>Observações (opcional)</label>
+          <input type="text" id="tc-obs" placeholder="Ex: serviço de aração no talhão 3">
+        </div>
+        <button class="btn-ok" style="width:100%" onclick="salvarLancamentoTerceirizado()">💾 Registrar lançamento</button>
+      </div>
+
+      <div class="section-title">📋 Últimos lançamentos</div>
+      <div id="tcLancList"></div>
+
+      <div class="section-title">👥 Prestadores cadastrados</div>
+      <div id="tcList"></div>
+    </div>
+
+    <!-- CADASTRAR MANUTENÇÃO -->
+    <div class="view" id="view-cadastro">
+      <div class="section-title">➕ Cadastro</div>
+      <div class="cad-tabs">
+        <button class="cad-tab-btn active" id="cad-tab-btn-maquinas" onclick="switchCadTab('maquinas')">🚜 Máquinas</button>
+        <button class="cad-tab-btn" id="cad-tab-btn-manutencoes" onclick="switchCadTab('manutencoes')">🛠️ Manutenções</button>
+      </div>
+
+      <div id="cad-tab-maquinas">
+        <div class="cad-card">
+          <div class="reg-field">
+            <label>Nome da máquina</label>
+            <input type="text" id="nm-nome" placeholder="Ex: Trator John Deere 6110">
+          </div>
+          <div class="reg-field">
+            <label>Tipo</label>
+            <select id="nm-tipo">
+              <option value="trator">🚜 Trator</option>
+              <option value="colhedora">🌾 Colhedora</option>
+              <option value="pulverizador">💦 Pulverizador</option>
+              <option value="plantadeira">🌱 Plantadeira</option>
+              <option value="caminhao">🚛 Caminhão</option>
+              <option value="outro">⚙️ Outro</option>
+            </select>
+          </div>
+          <div class="reg-field">
+            <label>Frota (opcional)</label>
+            <input type="text" id="nm-patrim" placeholder="Ex: 005">
+          </div>
+          <div class="reg-field">
+            <label>Horímetro inicial (h)</label>
+            <input type="number" id="nm-horim" value="0" min="0" step="0.1">
+          </div>
+          <button class="btn-ok" style="width:100%" onclick="salvarNovaMaquina()">➕ Cadastrar máquina</button>
+        </div>
+
+        <div class="section-title" style="margin-top:20px;">Máquinas cadastradas</div>
+        <div id="cadMaquinasList"></div>
+      </div>
+
+      <div id="cad-tab-manutencoes" style="display:none;">
+        <div class="cad-card">
+          <div class="reg-field">
+            <label>Máquina</label>
+            <select id="cm-maquina" onchange="renderCadManutencoesList()"></select>
+          </div>
+          <div class="reg-field">
+            <label>Descrição da manutenção</label>
+            <select id="cm-desc" onchange="document.getElementById('cm-desc-outro').style.display=(this.value==='__outro__'?'block':'none')">
+              <option value="">Selecione...</option>
+              <option>Troca de óleo motor e filtro</option>
+              <option>Troca óleo hidráulico filtro</option>
+              <option>Troca óleo transmissão filtro</option>
+              <option>Filtros combustível</option>
+              <option>Correia</option>
+              <option>Retífica motor</option>
+              <option>Retífica transmissão</option>
+              <option>Retífica bomba injetora</option>
+              <option>Retífica bomba hidráulica</option>
+              <option>Troca de pneus</option>
+              <option>Revisão elétrica</option>
+              <option value="__outro__">Outro (digitar)</option>
+            </select>
+            <input type="text" id="cm-desc-outro" placeholder="Digite a manutenção" style="display:none;margin-top:8px;">
+          </div>
+          <div class="reg-field">
+            <label>Intervalo (horas)</label>
+            <input type="number" id="cm-intervalo" placeholder="Ex: 250" min="1" step="1">
+          </div>
+          <div class="reg-field">
+            <label>Avisar com quantas horas de antecedência</label>
+            <input type="number" id="cm-alerta" value="10" min="0" step="1">
+          </div>
+          <div class="reg-field">
+            <label>Observações (opcional)</label>
+            <textarea id="cm-obs" rows="2" placeholder="Ex: Óleo 15W40, filtro XYZ"></textarea>
+          </div>
+          <button class="btn-ok" style="width:100%" onclick="salvarManutSimples()">➕ Cadastrar</button>
+        </div>
+
+        <div class="section-title" style="margin-top:20px;">Manutenções cadastradas <span style="font-weight:400;text-transform:none;letter-spacing:0;">— da máquina selecionada acima</span></div>
+        <div id="cadManutencoesList"></div>
+      </div>
+    </div>
+
+    <!-- HISTÓRICO -->
+    <div class="view" id="view-hist">
+      <div class="section-title">📋 Últimas realizadas</div>
+      <div class="hist-filtro" id="histFiltro"></div>
+      <div class="hist-actions-bar">
+        <button class="btn-pdf" onclick="gerarPDF()">📄 Relatório PDF</button>
+        <button class="btn-pdf" onclick="gerarPDFSituacao()">📊 Situação Atual (PDF)</button>
+      </div>
+      <div id="histList"></div>
+    </div>
+  </main>
+
+  <!-- CHAT (fora do <main>, ocupa a área entre header e nav) -->
+  <div class="view" id="view-chat">
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-inputbar" id="chatInputbarNormal">
+      <input type="text" id="chatInput" placeholder="Digite uma mensagem..." onkeydown="if(event.key==='Enter')enviarChat()">
+      <button class="chat-btn-mic" onclick="iniciarGravacao()">🎤</button>
+      <button class="chat-btn-send" onclick="enviarChat()">➤</button>
+    </div>
+    <div class="chat-recording-bar" id="chatRecordingBar">
+      <button class="chat-btn-cancel-rec" onclick="cancelarGravacao()">✕</button>
+      <div class="chat-rec-indicator"><span class="chat-rec-dot"></span> Gravando <span id="recTimer">00:00</span></div>
+      <button class="chat-btn-stop-rec" onclick="finalizarEEnviarAudio()">⏹ Enviar</button>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button id="nav-home" class="active" onclick="showHome()">🏠 Início<span class="nav-alert-dot" id="navAlertDot" style="display:none;"></span></button>
+    <button id="nav-horim" onclick="showHorim()">⏱ Horímetro</button>
+    <button id="nav-combustivel" onclick="showCombustivel()">⛽ Combustível</button>
+    <button id="nav-terceirizados" onclick="showTerceirizados()">🤝 Terceiriz.</button>
+    <button id="nav-cadastro" onclick="showCadastro()">➕ Cadastrar</button>
+    <button id="nav-hist" onclick="showHist()">📋 Histórico</button>
+    <button id="nav-chat" onclick="showChat()">💬 Chat</button>
+  </nav>
+</div>
+
+<div id="toast"></div>
+
+<div class="emoji-modal-overlay" id="waModalOverlay" onclick="if(event.target===this)fecharNotificarWhatsapp()">
+  <div class="emoji-modal">
+    <div class="emoji-modal-head">
+      <span>📲 Notificar manutenção vencida</span>
+      <button onclick="fecharNotificarWhatsapp()">✕</button>
+    </div>
+    <div style="font-size:.78rem;color:var(--muted);margin-bottom:12px;line-height:1.4;">
+      Toque em "Enviar" para abrir o WhatsApp já com a mensagem pronta para cada pessoa. É preciso confirmar o envio manualmente dentro do WhatsApp.
+    </div>
+    <button class="btn-ok" id="waEnviarGrupoBtn" style="width:100%;margin-bottom:14px;background:var(--accent, #25D366);">👥 Enviar para um grupo…</button>
+    <div id="waDestinatariosList"></div>
+  </div>
+</div>
+
+<div class="emoji-modal-overlay" id="emojiModalOverlay" onclick="if(event.target===this)fecharEmojiPicker()">
+  <div class="emoji-modal">
+    <div class="emoji-modal-head">
+      <span id="emojiModalTitulo">Escolher ícone</span>
+      <button onclick="fecharEmojiPicker()">✕</button>
+    </div>
+    <div id="emojiModalFav" class="emoji-fav-row"></div>
+    <div class="emoji-grid" id="emojiGrid"></div>
+    <div class="emoji-custom-row">
+      <input type="text" id="emojiCustomInput" placeholder="ou digite/cole outro emoji" maxlength="8">
+      <button class="btn-ok" onclick="confirmarEmojiCustom()">OK</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore, collection, doc,
+  onSnapshot, updateDoc, addDoc, deleteDoc, setDoc, getDocs, deleteField,
+  enableIndexedDbPersistence,
+  query, orderBy, limit
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import {
+  getStorage, ref as storageRef, uploadBytes, getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAdaMac9OeKtgGBOfXxPEAdxF9FmQhYr5I",
+  authDomain: "agrocontrole-b7367.firebaseapp.com",
+  projectId: "agrocontrole-b7367",
+  storageBucket: "agrocontrole-b7367.firebasestorage.app",
+  messagingSenderId: "286476092017",
+  appId: "1:286476092017:web:403a9a60a65d2139d811d0",
+};
+const app = initializeApp(firebaseConfig);
+const db_fire = getFirestore(app);
+const storage = getStorage(app);
+
+// Persistência offline: cache local + fila de gravações pendentes quando sem internet
+enableIndexedDbPersistence(db_fire).catch(err=>{
+  if(err.code==='failed-precondition'){
+    console.warn('Persistência offline indisponível: app aberto em outra aba.');
+  }else if(err.code==='unimplemented'){
+    console.warn('Este navegador não suporta persistência offline.');
+  }
+});
+
+const ICONS={trator:'🚜',colhedora:'🌾',pulverizador:'💦',plantadeira:'🌱',caminhao:'🚛',outro:'⚙️'};
+function getMaqIcon(maq){
+  return maq.iconCustom || ICONS[maq.tipo] || '⚙️';
+}
+async function editarFrotaMaquina(id,nome,patrimAtual){
+  if(!isAdmin()){toast('⚠️ Apenas o ADM pode alterar a frota da máquina.','yellow');return;}
+  const novo=prompt(`Número/nome da frota para ${nome}:`,patrimAtual||'');
+  if(novo===null)return;
+  const val=novo.trim();
+  await updateDoc(doc(db_fire,'maquinas',id),{patrim:val});
+  toast(val?'✅ Frota atualizada!':'✅ Frota removida!','green');
+}
+async function editarIconeMaquina(id,nome,iconAtual){
+  if(!isAdmin()){toast('⚠️ Apenas o ADM pode trocar o ícone da máquina.','yellow');return;}
+  abrirEmojiPicker('maquina',id,nome,iconAtual);
+}
+
+// ═══════════════════════════════
+// SELETOR DE EMOJIS (com favoritos)
+// ═══════════════════════════════
+const EMOJIS_MAQUINA=['🚜','🌾','💦','🌱','🚛','🏗️','⚙️','🔧','🛠️','🧰','🛞','⛽','🔩','🪛','⚡','🚂','🚒','🛻'];
+const EMOJIS_PESSOA=['🧑‍🌾','👨‍🌾','👩‍🌾','🧑‍🔧','👨‍🔧','👩‍🔧','👷','👷‍♂️','👷‍♀️','🧑‍💼','👨‍💼','👩‍💼','🧑‍🏭','👨‍🏭','👩‍🏭','🧑‍✈️','😎','🤠'];
+const FAV_KEY='agrosimples_emoji_favoritos';
+let _emojiCtx=null; // {tipo:'usuario'|'maquina', id, nome}
+
+function getEmojiFavoritos(){
+  try{return JSON.parse(localStorage.getItem(FAV_KEY)||'[]');}catch(e){return [];}
+}
+function salvarEmojiFavorito(emoji){
+  let favs=getEmojiFavoritos();
+  favs=favs.filter(e=>e!==emoji);
+  favs.unshift(emoji);
+  favs=favs.slice(0,12);
+  try{localStorage.setItem(FAV_KEY,JSON.stringify(favs));}catch(e){}
+}
+
+function abrirEmojiPicker(tipo,id,nome,iconAtual){
+  _emojiCtx={tipo,id,nome};
+  document.getElementById('emojiModalTitulo').textContent=`Ícone de ${nome}`;
+  document.getElementById('emojiCustomInput').value='';
+
+  const favs=getEmojiFavoritos();
+  const favEl=document.getElementById('emojiModalFav');
+  favEl.innerHTML=favs.length
+    ? '<span style="width:100%;font-size:.65rem;color:var(--muted);text-transform:uppercase;margin-bottom:2px;">⭐ Seus favoritos</span>'+
+      favs.map(e=>`<button class="emoji-btn" onclick="selecionarEmoji('${e}')">${e}</button>`).join('')
+    : '';
+
+  const lista=tipo==='maquina'?EMOJIS_MAQUINA:EMOJIS_PESSOA;
+  document.getElementById('emojiGrid').innerHTML=lista.map(e=>`<button class="emoji-btn" onclick="selecionarEmoji('${e}')">${e}</button>`).join('');
+
+  document.getElementById('emojiModalOverlay').classList.add('show');
+}
+
+function fecharEmojiPicker(){
+  document.getElementById('emojiModalOverlay').classList.remove('show');
+  _emojiCtx=null;
+}
+
+async function selecionarEmoji(emoji){
+  if(!_emojiCtx)return;
+  const{tipo,id}=_emojiCtx;
+  salvarEmojiFavorito(emoji);
+  if(tipo==='usuario'){
+    await updateDoc(doc(db_fire,'usuarios',id),{icon:emoji});
+    toast('✅ Ícone atualizado!','blue');
+  }else{
+    await updateDoc(doc(db_fire,'maquinas',id),{iconCustom:emoji});
+    toast('✅ Ícone da máquina atualizado!','green');
+  }
+  fecharEmojiPicker();
+}
+
+function confirmarEmojiCustom(){
+  const val=(document.getElementById('emojiCustomInput').value||'').trim();
+  if(!val){toast('Digite ou cole um emoji primeiro.','yellow');return;}
+  selecionarEmoji(val);
+}
+
+// PWA: manifest.json, sw.js e ícones são arquivos reais na mesma pasta
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js')
+      .catch(err=>console.warn('Falha ao registrar service worker:',err));
+  });
+}
+
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt', e=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  const btn=document.getElementById('btnInstall');
+  if(btn) btn.style.display='inline-block';
+});
+async function instalarApp(){
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt=null;
+  document.getElementById('btnInstall').style.display='none';
+}
+
+async function compartilharApp(){
+  const url=window.location.href;
+  const dados={
+    title:'Controle de Manutenção',
+    text:'Acesse o app de Controle de Manutenção:',
+    url
+  };
+  if(navigator.share){
+    try{
+      await navigator.share(dados);
+    }catch(e){
+      // usuário cancelou o compartilhamento, ignora
+    }
+    return;
+  }
+  try{
+    await navigator.clipboard.writeText(url);
+    toast('🔗 Link copiado! Cole para compartilhar.','blue');
+  }catch(e){
+    toast('🔗 '+url,'blue');
+  }
+}
+window.compartilharApp=compartilharApp;
+
+const USUARIOS_SEED = [
+  {id:'joao',   nome:'João Divino', icon:'👨‍🌾', admin:true},
+  {id:'amaral', nome:'Amaral agro', icon:'🧑‍🔧', admin:true},
+];
+
+let db = { maquinas:[], manutencoes:[], historico:[], chat:[], usuarios:[], abastecimentos:[], estoque:{litros:0,capacidade:0}, terceirizados:[], terceirizadosLanc:[] };
+let curMaqId=null;
+let openPanelId=null;
+
+// ═══════════════════════════════
+// LOGIN
+// ═══════════════════════════════
+const userGrid=document.getElementById('userGrid');
+
+// Usuário de teste (local, não grava nada na lista de usuários, sem trava de aparelho)
+const USUARIO_TESTE={id:'teste',nome:'Teste',icon:'🧪',admin:false,_teste:true};
+
+function renderLoginGrid(){
+  const lista=db.usuarios.some(u=>u.id==='teste')?db.usuarios:db.usuarios.concat([USUARIO_TESTE]);
+  userGrid.innerHTML=lista.map(u=>`
+    <div class="user-card" onclick="entrar('${u.id}')">
+      <div class="user-icon">${u.icon}</div>
+      <div class="user-nome">${u.nome}</div>
+    </div>`).join('');
+}
+
+let _seedFeito=false;
+let _fixJoaoFeito=false;
+
+const loginStatusEl=document.getElementById('loginStatus');
+loginStatusEl.textContent='Carregando usuários...';
+let _loginCarregou=false;
+setTimeout(()=>{
+  if(!_loginCarregou){
+    loginStatusEl.innerHTML='Isso está demorando mais que o normal.<br>Verifique sua conexão com a internet e tente <a href="#" onclick="location.reload();return false;" style="color:var(--accent);">recarregar a página</a>.';
+  }
+},8000);
+
+onSnapshot(collection(db_fire,'usuarios'), async snap=>{
+  _loginCarregou=true;
+  loginStatusEl.textContent='';
+  if(snap.empty && !_seedFeito){
+    _seedFeito=true;
+    for(const u of USUARIOS_SEED){
+      await setDoc(doc(db_fire,'usuarios',u.id),{nome:u.nome,icon:u.icon,admin:u.admin});
+    }
+    return; // o próprio setDoc vai disparar este onSnapshot de novo, já preenchido
+  }
+  db.usuarios=snap.docs.map(d=>({id:d.id,...d.data()}));
+
+  // Correção pontual: garante que João Divino e Amaral agro estejam marcados como ADM
+  if(!_fixJoaoFeito){
+    const admsObrigatorios=['joao','amaral'];
+    const pendente=admsObrigatorios.find(id=>{
+      const u=db.usuarios.find(x=>x.id===id);
+      return u && u.admin!==true;
+    });
+    if(pendente){
+      await updateDoc(doc(db_fire,'usuarios',pendente),{admin:true});
+      return; // o updateDoc dispara este onSnapshot de novo, já corrigido
+    }
+    _fixJoaoFeito=true;
+  }
+
+  renderLoginGrid();
+  if(document.getElementById('view-usuarios')?.classList.contains('active')) renderUsuarios();
+}, err=>{
+  _loginCarregou=true;
+  console.error('Erro ao carregar usuários:', err);
+  loginStatusEl.innerHTML=`Erro ao carregar: <b>${err.code||err.message}</b><br>Verifique sua internet ou tente <a href="#" onclick="location.reload();return false;" style="color:var(--accent);">recarregar</a>.`;
+});
+
+let _usuario=null;
+const _sess=sessionStorage.getItem('agrosimples_user');
+if(_sess) _usuario=JSON.parse(_sess);
+
+// ---- ID único do aparelho (trava de acesso por pessoa) ----
+function getDeviceId(){
+  let dId=localStorage.getItem('agrosimples_deviceId');
+  if(!dId){
+    dId=(crypto.randomUUID?crypto.randomUUID():'dev-'+Date.now()+'-'+Math.random().toString(36).slice(2));
+    localStorage.setItem('agrosimples_deviceId',dId);
+  }
+  return dId;
+}
+
+async function entrar(id){
+  if(id==='teste' && !db.usuarios.some(x=>x.id==='teste')){
+    _usuario=Object.assign({},USUARIO_TESTE);
+    sessionStorage.setItem('agrosimples_user',JSON.stringify(_usuario));
+    try{
+      if(!_audioCtx) _audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+      if(_audioCtx.state==='suspended') _audioCtx.resume();
+    }catch(e){}
+    iniciarApp();
+    return;
+  }
+  const u=db.usuarios.find(x=>x.id===id);
+  if(!u)return;
+
+  if(u.pin){
+    const digitado=prompt('Digite o PIN de '+u.nome+':');
+    if(digitado===null)return;
+    if(digitado!==u.pin){
+      toast('🔒 PIN incorreto.','red');
+      return;
+    }
+  }
+
+  const meuDeviceId=getDeviceId();
+
+  if(!u.admin){
+    // Este aparelho já está travado em outra pessoa?
+    const donoAtual=db.usuarios.find(x=>x.deviceId===meuDeviceId);
+    if(donoAtual && donoAtual.id!==id){
+      toast('🔒 Este aparelho já está registrado para '+donoAtual.nome+'. Só é possível entrar com esse nome.','red');
+      return;
+    }
+
+    // Esta pessoa já está travada em outro aparelho?
+    if(u.deviceId && u.deviceId!==meuDeviceId){
+      toast('🔒 '+u.nome+' já está registrado em outro aparelho. Fale com o administrador.','red');
+      return;
+    }
+
+    // Primeiro acesso desta pessoa neste aparelho: registra a trava
+    if(!u.deviceId){
+      try{ await updateDoc(doc(db_fire,'usuarios',id),{deviceId:meuDeviceId}); }catch(e){}
+      u.deviceId=meuDeviceId;
+    }
+  }else if(u.deviceId){
+    // ADM: nunca fica travado por aparelho. Remove qualquer trava antiga do próprio perfil.
+    try{ await updateDoc(doc(db_fire,'usuarios',id),{deviceId:deleteField()}); }catch(e){}
+    delete u.deviceId;
+  }
+
+  const agoraISO=new Date().toISOString();
+  try{ await updateDoc(doc(db_fire,'usuarios',id),{ultimoAcesso:agoraISO}); }catch(e){}
+  u.ultimoAcesso=agoraISO;
+
+  _usuario=u;
+  sessionStorage.setItem('agrosimples_user',JSON.stringify(u));
+  try{
+    if(!_audioCtx) _audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(_audioCtx.state==='suspended') _audioCtx.resume();
+  }catch(e){}
+  iniciarApp();
+}
+
+function logout(){
+  sessionStorage.removeItem('agrosimples_user');
+  location.reload();
+}
+
+function isAdmin(){
+  return !!(_usuario && _usuario.admin===true);
+}
+
+// ---- Indicador de conexão/sincronização ----
+function atualizarSyncStatus(){
+  const el=document.getElementById('syncStatus');
+  if(!el)return;
+  if(navigator.onLine){
+    el.textContent='🟢';
+    el.title='Online — dados sincronizados';
+  }else{
+    el.textContent='🟡';
+    el.title='Sem internet — alterações serão enviadas quando a conexão voltar';
+  }
+}
+window.addEventListener('online', ()=>{ atualizarSyncStatus(); toast('🟢 Conexão restabelecida.','green'); });
+window.addEventListener('offline', ()=>{ atualizarSyncStatus(); toast('🟡 Sem internet — o app continua funcionando offline.','yellow'); });
+
+function iniciarApp(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('appScreen').style.display='block';
+  document.getElementById('hdrUserIcon').textContent=_usuario.icon;
+  document.getElementById('hdrUserNome').textContent=_usuario.nome;
+  document.getElementById('btnUsuarios').style.display=isAdmin()?'inline-block':'none';
+  atualizarSyncStatus();
+  initListeners();
+}
+
+if(_usuario) iniciarApp();
+
+// ═══════════════════════════════
+// LISTENERS FIRESTORE
+// ═══════════════════════════════
+function initListeners(){
+  onSnapshot(collection(db_fire,'maquinas'), snap=>{
+    db.maquinas=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderHome();
+    renderHorim();
+    renderCadastroSelect();
+    renderCadMaquinasList();
+    renderCadManutencoesList();
+    renderCombustivelSelect();
+    renderCombustivel();
+    if(curMaqId) renderDetail(curMaqId);
+  });
+  onSnapshot(collection(db_fire,'manutencoes'), snap=>{
+    db.manutencoes=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderHome();
+    renderCadMaquinasList();
+    renderCadManutencoesList();
+    if(curMaqId) renderDetail(curMaqId);
+  });
+  const qHist=query(collection(db_fire,'historico'), orderBy('data','desc'), limit(30));
+  onSnapshot(qHist, snap=>{
+    db.historico=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderHist();
+  });
+  const qChat=query(collection(db_fire,'chatManutencao'), orderBy('data','desc'), limit(100));
+  onSnapshot(qChat, snap=>{
+    db.chat=snap.docs.map(d=>({id:d.id,...d.data()})).reverse();
+    renderChat();
+  });
+  const qAbast=query(collection(db_fire,'abastecimentos'), orderBy('data','desc'), limit(500));
+  onSnapshot(qAbast, snap=>{
+    db.abastecimentos=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderCombustivel();
+  });
+  onSnapshot(doc(db_fire,'estoqueCombustivel','estoque'), snap=>{
+    db.estoque = snap.exists() ? snap.data() : {litros:0,capacidade:0};
+    renderCombustivel();
+  });
+  onSnapshot(collection(db_fire,'terceirizados'), snap=>{
+    db.terceirizados=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderTerceirizadosSelect();
+    renderTerceirizadosList();
+  });
+  const qTcLanc=query(collection(db_fire,'terceirizadosLanc'), orderBy('data','desc'), limit(50));
+  onSnapshot(qTcLanc, snap=>{
+    db.terceirizadosLanc=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderTerceirizadosLancList();
+  });
+}
+
+// ═══════════════════════════════
+// STATUS
+// ═══════════════════════════════
+function getStatus(manut,horimAtual){
+  const prox=(manut.ultimo||0)+manut.intervalo;
+  const resta=prox-horimAtual;
+  if(resta<=0)return'over';
+  if(resta<=(manut.alerta||10))return'alert';
+  return'ok';
+}
+
+function statusMaquina(maq){
+  const manuts=db.manutencoes.filter(m=>m.maqId===maq.id);
+  if(!manuts.length)return'ok';
+  const stats=manuts.map(m=>getStatus(m,maq.horim));
+  if(stats.includes('over'))return'over';
+  if(stats.includes('alert'))return'alert';
+  return'ok';
+}
+
+const STATUS_LABEL={ok:'Em dia',alert:'Atenção',over:'Vencida'};
+
+function atualizarNavAlertDot(){
+  const dot=document.getElementById('navAlertDot');
+  if(!dot)return;
+  const temVencida=db.maquinas.some(maq=>statusMaquina(maq)==='over');
+  dot.style.display=temVencida?'block':'none';
+}
+
+// ═══════════════════════════════
+// ALARME SONORO
+// ═══════════════════════════════
+let _alarmSilenciado=false;
+let _idsVencidosAnteriores=new Set();
+let _audioCtx=null;
+
+function tocarBipAlarme(){
+  try{
+    if(!_audioCtx) _audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(_audioCtx.state==='suspended') _audioCtx.resume();
+    const tocarNota=(freq,inicio,dur)=>{
+      const osc=_audioCtx.createOscillator();
+      const gain=_audioCtx.createGain();
+      osc.type='square';
+      osc.frequency.value=freq;
+      gain.gain.setValueAtTime(0.0001,_audioCtx.currentTime+inicio);
+      gain.gain.exponentialRampToValueAtTime(0.22,_audioCtx.currentTime+inicio+0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001,_audioCtx.currentTime+inicio+dur);
+      osc.connect(gain); gain.connect(_audioCtx.destination);
+      osc.start(_audioCtx.currentTime+inicio);
+      osc.stop(_audioCtx.currentTime+inicio+dur+0.02);
+    };
+    tocarNota(880,0,0.16); tocarNota(660,0.2,0.16); tocarNota(880,0.4,0.22);
+  }catch(e){ /* áudio indisponível neste navegador */ }
+}
+
+function silenciarAlarme(){
+  _alarmSilenciado=!_alarmSilenciado;
+  const btn=document.getElementById('homeAlarmMuteBtn');
+  if(btn){
+    btn.textContent=_alarmSilenciado?'🔇':'🔊';
+    btn.title=_alarmSilenciado?'Ativar som':'Silenciar som';
+  }
+  if(!_alarmSilenciado) toast('🔊 Som do alarme ativado.','blue');
+  else toast('🔇 Som do alarme silenciado nesta sessão.','yellow');
+}
+
+function atualizarAlarmeHome(){
+  const banner=document.getElementById('homeAlarm');
+  const texto=document.getElementById('homeAlarmText');
+  if(!banner||!texto)return;
+  const vencidas=db.maquinas.filter(maq=>statusMaquina(maq)==='over');
+  const idsAtuais=new Set(vencidas.map(m=>m.id));
+
+  if(!vencidas.length){
+    banner.classList.remove('show');
+    _idsVencidosAnteriores=idsAtuais;
+    return;
+  }
+  const nomes=vencidas.map(m=>m.nome).join(', ');
+  texto.innerHTML=`<b>${vencidas.length} máquina(s)</b> com manutenção vencida: ${nomes}`;
+  banner.classList.add('show');
+
+  const surgiuNova=[...idsAtuais].some(id=>!_idsVencidosAnteriores.has(id));
+  if(surgiuNova && !_alarmSilenciado) tocarBipAlarme();
+  _idsVencidosAnteriores=idsAtuais;
+}
+
+// ═══════════════════════════════
+// NOTIFICAÇÃO WHATSAPP (click-to-chat)
+// ═══════════════════════════════
+function montarMensagemVencidas(){
+  const vencidas=db.maquinas.filter(maq=>statusMaquina(maq)==='over');
+  const emAlerta=db.maquinas.filter(maq=>statusMaquina(maq)==='alert');
+  if(!vencidas.length && !emAlerta.length)return null;
+  let msg='🚨 *Grupo agro — Situação de manutenção*\n\n';
+  if(vencidas.length){
+    msg+=vencidas.length+' máquina(s) com manutenção *vencida*:\n';
+    vencidas.forEach(m=>{ msg+='🔧 '+m.nome+'\n'; });
+  }
+  if(emAlerta.length){
+    if(vencidas.length) msg+='\n';
+    msg+=emAlerta.length+' máquina(s) próxima(s) do vencimento:\n';
+    emAlerta.forEach(m=>{ msg+='⚠ '+m.nome+'\n'; });
+  }
+  msg+='\nPor favor, verifique o quanto antes.';
+  return msg;
+}
+
+function abrirNotificarWhatsapp(){
+  try{
+    const msg=montarMensagemVencidas();
+    if(!msg){toast('✅ Nenhuma manutenção vencida ou próxima do vencimento no momento.','green');return;}
+    const comTel=db.usuarios.filter(u=>u.telefone);
+    const lista=document.getElementById('waDestinatariosList');
+    if(!comTel.length){
+      lista.innerHTML='<div class="empty-state"><div class="ei">📵</div>Nenhuma pessoa tem WhatsApp cadastrado.<br>Cadastre em 👥 Gerenciar usuários.</div>';
+    }else{
+      lista.innerHTML=comTel.map((u,i)=>`
+        <div class="usr-item">
+          <div class="usr-item-icon">${u.icon}</div>
+          <div class="usr-item-info">
+            <div class="usr-item-nome">${u.nome}</div>
+            <div class="usr-item-tag">${formatarTelefoneExibicao(u.telefone)}</div>
+          </div>
+          <button class="btn-ok" data-wa-idx="${i}" type="button">Enviar</button>
+        </div>`).join('');
+      lista.querySelectorAll('[data-wa-idx]').forEach(btn=>{
+        btn.addEventListener('click',function(ev){
+          ev.preventDefault();
+          try{
+            const u=comTel[Number(btn.getAttribute('data-wa-idx'))];
+            const texto=montarMensagemVencidas();
+            if(!u || !u.telefone){toast('⚠️ Telefone inválido para '+(u?u.nome:'?'),'red');return;}
+            const url='https://wa.me/'+u.telefone+'?text='+encodeURIComponent(texto||'');
+            toast('Abrindo WhatsApp de '+u.nome+'…','green');
+            const win=window.open(url,'_blank');
+            if(!win){ location.href=url; }
+          }catch(err){
+            toast('❌ Erro ao abrir WhatsApp: '+err.message,'red');
+            console.error('Erro botão Enviar WhatsApp',err);
+          }
+        });
+      });
+    }
+    const btnGrupo=document.getElementById('waEnviarGrupoBtn');
+    btnGrupo.onclick=function(){
+      try{
+        const texto=montarMensagemVencidas();
+        if(!texto){toast('✅ Nenhuma manutenção vencida ou próxima do vencimento no momento.','green');return;}
+        const url='https://api.whatsapp.com/send?text='+encodeURIComponent(texto);
+        toast('Abrindo WhatsApp — escolha o grupo…','green');
+        const win=window.open(url,'_blank');
+        if(!win){ location.href=url; }
+      }catch(err){
+        toast('❌ Erro ao abrir WhatsApp: '+err.message,'red');
+        console.error('Erro botão grupo WhatsApp',err);
+      }
+    };
+
+    document.getElementById('waModalOverlay').classList.add('show');
+  }catch(err){
+    toast('❌ Erro ao montar lista: '+err.message,'red');
+    console.error('Erro abrirNotificarWhatsapp',err);
+  }
+}
+
+function fecharNotificarWhatsapp(){
+  document.getElementById('waModalOverlay').classList.remove('show');
+}
+
+// ═══════════════════════════════
+// HOME (LISTA DE MÁQUINAS)
+// ═══════════════════════════════
+function renderHome(){
+  const el=document.getElementById('maqList');
+  atualizarNavAlertDot();
+  atualizarAlarmeHome();
+  if(!db.maquinas.length){
+    el.innerHTML='<div class="empty-state"><div class="ei">🚜</div>Nenhuma máquina cadastrada ainda.</div>';
+    return;
+  }
+  el.innerHTML=db.maquinas.map(maq=>{
+    const st=statusMaquina(maq);
+    const qtd=db.manutencoes.filter(m=>m.maqId===maq.id).length;
+    let restaTxt='';
+    if(st==='alert'){
+      const manuts=db.manutencoes.filter(m=>m.maqId===maq.id);
+      const restas=manuts.map(m=>((m.ultimo||0)+m.intervalo)-maq.horim).filter(r=>r>0);
+      if(restas.length) restaTxt=' · faltam '+Math.round(Math.min(...restas))+'h';
+    }
+    return`<div class="maq-card st-${st}" onclick="abrirMaquina('${maq.id}')">
+      <div class="maq-icon-wrap">
+        <div class="maq-icon">${getMaqIcon(maq)}</div>
+        ${st==='over'?'<div class="maq-alert-badge" title="Manutenção vencida">🔧</div>':(st==='alert'?'<div class="maq-alert-badge maq-alert-badge-yellow" title="Manutenção próxima do vencimento">⚠</div>':'')}
+      </div>
+      <div class="maq-info">
+        <div class="maq-nome">${maq.nome}${maq.patrim?' · Frota '+maq.patrim:''}</div>
+        <div class="maq-meta">${qtd} manutenção(ões) cadastrada(s)</div>
+        <div class="maq-badge st-${st}">${STATUS_LABEL[st]}${restaTxt}</div>
+      </div>
+      <div class="maq-horim">⏱ ${maq.horim}h</div>
+    </div>`;
+  }).join('');
+}
+
+function switchView(view){
+  ['home','detail','horim','combustivel','terceirizados','cadastro','hist','chat','usuarios'].forEach(v=>{
+    document.getElementById('view-'+v).classList.toggle('active', v===view);
+  });
+  ['nav-home','nav-horim','nav-combustivel','nav-terceirizados','nav-cadastro','nav-hist','nav-chat'].forEach(id=>{
+    document.getElementById(id)?.classList.remove('active');
+  });
+  document.getElementById('nav-'+view)?.classList.add('active');
+}
+
+function posicionarChat(){
+  const chatEl=document.getElementById('view-chat');
+  const headerH=document.querySelector('header').offsetHeight;
+  const navH=document.querySelector('.bottom-nav').offsetHeight;
+  chatEl.style.top=headerH+'px';
+  chatEl.style.bottom=navH+'px';
+}
+window.addEventListener('resize', ()=>{
+  if(document.getElementById('view-chat').classList.contains('active')) posicionarChat();
+});
+
+function abrirMaquina(id){
+  curMaqId=id;
+  openPanelId=null;
+  switchView('detail');
+  renderDetail(id);
+}
+
+function showHome(){
+  curMaqId=null;
+  switchView('home');
+}
+
+function showHorim(){
+  curMaqId=null;
+  switchView('horim');
+  renderHorim();
+}
+
+function showCadastro(){
+  curMaqId=null;
+  switchView('cadastro');
+  renderCadastroSelect();
+  renderCadMaquinasList();
+  renderCadManutencoesList();
+}
+
+function switchCadTab(tab){
+  document.getElementById('cad-tab-maquinas').style.display=tab==='maquinas'?'block':'none';
+  document.getElementById('cad-tab-manutencoes').style.display=tab==='manutencoes'?'block':'none';
+  document.getElementById('cad-tab-btn-maquinas').classList.toggle('active',tab==='maquinas');
+  document.getElementById('cad-tab-btn-manutencoes').classList.toggle('active',tab==='manutencoes');
+  if(tab==='manutencoes') renderCadManutencoesList();
+  else renderCadMaquinasList();
+}
+
+function renderCadMaquinasList(){
+  const el=document.getElementById('cadMaquinasList');
+  if(!el)return;
+  if(!db.maquinas.length){
+    el.innerHTML='<div class="empty-state"><div class="ei">🚜</div>Nenhuma máquina cadastrada ainda.</div>';
+    return;
+  }
+  el.innerHTML=db.maquinas.slice().sort((a,b)=>a.nome.localeCompare(b.nome)).map(maq=>{
+    const qtd=db.manutencoes.filter(m=>m.maqId===maq.id).length;
+    return`<div class="cad-list-item">
+      <div class="cad-list-item-icon">${getMaqIcon(maq)}</div>
+      <div class="cad-list-item-info">
+        <div class="cad-list-item-nome">${maq.nome}${maq.patrim?' · Frota '+maq.patrim:''}</div>
+        <div class="cad-list-item-sub">⏱ ${maq.horim}h · ${qtd} manutenção(ões) cadastrada(s)</div>
+      </div>
+      ${isAdmin()?`<div class="cad-list-actions">
+        <button class="usr-action-btn" title="Trocar ícone" onclick="editarIconeMaquina('${maq.id}','${maq.nome.replace(/'/g,"\\'")}','${getMaqIcon(maq)}')">✏️</button>
+        <button class="usr-action-btn" title="Editar frota" onclick="editarFrotaMaquina('${maq.id}','${maq.nome.replace(/'/g,"\\'")}','${(maq.patrim||'').replace(/'/g,"\\'")}')">🔢</button>
+        <button class="usr-action-btn danger" title="Remover máquina" onclick="removerMaquina('${maq.id}')">🗑</button>
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function renderCadManutencoesList(){
+  const el=document.getElementById('cadManutencoesList');
+  if(!el)return;
+  const maqId=document.getElementById('cm-maquina')?.value;
+  if(!maqId){
+    el.innerHTML='<div class="empty-state"><div class="ei">🛠️</div>Cadastre uma máquina primeiro.</div>';
+    return;
+  }
+  const maq=db.maquinas.find(m=>m.id===maqId);
+  const manuts=db.manutencoes.filter(m=>m.maqId===maqId);
+  if(!manuts.length){
+    el.innerHTML='<div class="empty-state"><div class="ei">🛠️</div>Nenhuma manutenção cadastrada para esta máquina.</div>';
+    return;
+  }
+  el.innerHTML=manuts.map(m=>{
+    const st=maq?getStatus(m,maq.horim):'ok';
+    return`<div class="cad-list-item">
+      <div class="cad-list-item-icon">🔧</div>
+      <div class="cad-list-item-info">
+        <div class="cad-list-item-nome">${m.desc}</div>
+        <div class="cad-list-item-sub">A cada ${m.intervalo}h · avisa ${m.alerta||10}h antes${m.obs?' · '+m.obs:''}</div>
+      </div>
+      ${isAdmin()?`<div class="cad-list-actions">
+        <button class="usr-action-btn danger" title="Remover manutenção" onclick="removerManutencao('${m.id}','${m.desc.replace(/'/g,"\\'")}')">🗑</button>
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function showCombustivel(){
+  curMaqId=null;
+  switchView('combustivel');
+  renderCombustivelSelect();
+  renderCombustivel();
+}
+
+function showTerceirizados(){
+  curMaqId=null;
+  switchView('terceirizados');
+  const dataInp=document.getElementById('tc-data');
+  if(dataInp && !dataInp.value) dataInp.value=new Date().toISOString().slice(0,10);
+  if(_usuario){
+    const respInp=document.getElementById('tc-resp');
+    if(respInp && !respInp.value) respInp.value=_usuario.nome;
+  }
+  renderTerceirizadosSelect();
+  renderTerceirizadosList();
+  renderTerceirizadosLancList();
+}
+
+function showHist(){
+  curMaqId=null;
+  switchView('hist');
+}
+
+function showChat(){
+  curMaqId=null;
+  switchView('chat');
+  posicionarChat();
+  renderChat();
+}
+
+function showUsuarios(){
+  if(!isAdmin()){toast('🔒 Apenas o ADM pode gerenciar usuários.','red');return;}
+  curMaqId=null;
+  switchView('usuarios');
+  renderUsuarios();
+}
+
+async function exportarBackupCompleto(){
+  if(!isAdmin()){toast('🔒 Apenas o ADM pode exportar o backup.','red');return;}
+  toast('💾 Gerando backup, aguarde...','blue');
+  try{
+    const colecoes=['maquinas','manutencoes','historico','chatManutencao','usuarios','abastecimentos','terceirizados','terceirizadosLanc'];
+    const backup={geradoEm:new Date().toISOString()};
+    for(const nome of colecoes){
+      const snap=await getDocs(collection(db_fire,nome));
+      backup[nome]=snap.docs.map(d=>({id:d.id,...d.data()}));
+    }
+    const estoqueSnap=await getDocs(collection(db_fire,'estoqueCombustivel'));
+    backup.estoqueCombustivel=estoqueSnap.docs.map(d=>({id:d.id,...d.data()}));
+
+    const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    const dataFmt=new Date().toISOString().slice(0,10);
+    a.href=url; a.download=`backup-manutencao-${dataFmt}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    toast('✅ Backup exportado com sucesso!','green');
+  }catch(e){
+    console.error(e);
+    toast('🔴 Falha ao gerar backup.','red');
+  }
+}
+
+function formatarTelefoneExibicao(tel){
+  const d=(tel||'').replace(/\D/g,'');
+  if(d.length===13) return '+'+d.slice(0,2)+' ('+d.slice(2,4)+') '+d.slice(4,9)+'-'+d.slice(9);
+  if(d.length===12) return '+'+d.slice(0,2)+' ('+d.slice(2,4)+') '+d.slice(4,8)+'-'+d.slice(8);
+  return tel;
+}
+
+function slugify(nome){
+  const base=nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'').slice(0,20)||'pessoa';
+  return base+'-'+Date.now().toString(36).slice(-4);
+}
+
+function normalizarTelefoneWA(v){
+  let d=(v||'').replace(/\D/g,'');
+  if(!d)return '';
+  if(d.length<=11) d='55'+d; // assume Brasil se vier só DDD+número
+  return d;
+}
+
+async function salvarNovoUsuario(){
+  if(!isAdmin()){toast('🔒 Apenas o ADM pode gerenciar usuários.','red');return;}
+  const nome=(document.getElementById('us-nome').value||'').trim();
+  const icon=(document.getElementById('us-icon').value||'').trim()||'🧑‍🌾';
+  const admin=document.getElementById('us-admin').checked;
+  const telefone=normalizarTelefoneWA(document.getElementById('us-telefone').value);
+
+  if(!nome){toast('⚠️ Informe o nome da pessoa!','red');return;}
+  if(db.usuarios.some(u=>u.nome.toLowerCase()===nome.toLowerCase())){
+    toast('⚠️ Já existe uma pessoa com esse nome!','red');return;
+  }
+
+  const id=slugify(nome);
+  const dados={nome,icon,admin};
+  if(telefone) dados.telefone=telefone;
+  await setDoc(doc(db_fire,'usuarios',id),dados);
+
+  document.getElementById('us-nome').value='';
+  document.getElementById('us-icon').value='';
+  document.getElementById('us-telefone').value='';
+  document.getElementById('us-admin').checked=false;
+  toast('✅ '+nome+' adicionado(a) ao painel!','green');
+}
+
+async function editarTelefoneUsuario(id,nomeAtual,telAtual){
+  if(!isAdmin()){toast('🔒 Apenas o ADM pode gerenciar usuários.','red');return;}
+  const entrada=prompt('WhatsApp de '+nomeAtual+' (com DDD):',telAtual?telAtual.replace(/^55/,''):'');
+  if(entrada===null)return;
+  const telefone=normalizarTelefoneWA(entrada);
+  if(!telefone){
+    await updateDoc(doc(db_fire,'usuarios',id),{telefone:deleteField()});
+    toast('🗑 Telefone removido de '+nomeAtual+'.','green');
+    return;
+  }
+  await updateDoc(doc(db_fire,'usuarios',id),{telefone});
+  toast('✅ Telefone de '+nomeAtual+' atualizado.','green');
+}
+
+async function editarPinUsuario(id,nomeAtual,pinAtual){
+  if(!isAdmin()){toast('🔒 Apenas o ADM pode gerenciar usuários.','red');return;}
+  const entrada=prompt('PIN de acesso de '+nomeAtual+' (4 dígitos, deixe vazio para remover):',pinAtual||'');
+  if(entrada===null)return;
+  const pin=(entrada||'').replace(/\D/g,'').slice(0,6);
+  if(!pin){
+    await updateDoc(doc(db_fire,'usuarios',id),{pin:deleteField()});
+    toast('🗑 PIN removido de '+nomeAtual+'.','green');
+    return;
+  }
+  if(pin.length<4){toast('⚠️ Use pelo menos 4 dígitos.','red');return;}
+  await updateDoc(doc(db_fire,'usuarios',id),{pin});
+  toast('✅ PIN de '+nomeAtual+' definido.','green');
+}
+
+async function removerUsuario(id){
+  if(!isAdmin()){toast('🔒 Apenas o ADM pode gerenciar usuários.','red');return;}
+  if(_usuario && _usuario.id===id){toast('⚠️ Você não pode remover a si mesmo.','red');return;}
+  const u=db.usuarios.find(x=>x.id===id);
+  if(!confirm('Remover "'+(u?u.nome:'')+'" do painel de acesso?'))return;
+  await deleteDoc(doc(db_fire,'usuarios',id));
+  toast('🗑 Pessoa removida.','green');
+}
+
+function renderUsuarios(){
+  const el=document.getElementById('usuariosList');
+  if(!el)return;
+  if(!db.usuarios.length){
+    el.innerHTML='<div class="empty-state"><div class="ei">👥</div>Nenhuma pessoa cadastrada ainda.</div>';
+    return;
+  }
+  el.innerHTML=db.usuarios.map(u=>`
+    <div class="usr-item" style="flex-direction:column;align-items:stretch;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="usr-item-icon" onclick="editarIconeUsuario('${u.id}','${u.nome.replace(/'/g,"\\'")}','${u.icon}')" style="cursor:pointer;" title="Toque para trocar o ícone">${u.icon}</div>
+        <div class="usr-item-info">
+          <div class="usr-item-nome">${u.nome}${u.admin?' <span style="font-size:.68rem;">👑 ADM</span>':''}</div>
+          <div class="usr-item-tag" style="color:var(--blue);">🕒 ${u.ultimoAcesso?new Date(u.ultimoAcesso).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'Nunca acessou'}</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;">
+        <span class="usr-item-tag" style="color:${u.deviceId?'var(--green)':'var(--muted)'};font-size:.66rem;" title="${u.deviceId?'Aparelho travado':'Sem trava de aparelho'}">${u.deviceId?'🔒':'🔓'}</span>
+        <span class="usr-item-tag" style="color:${u.telefone?'var(--green)':'var(--muted)'};font-size:.66rem;" title="${u.telefone?formatarTelefoneExibicao(u.telefone):'Sem WhatsApp cadastrado'}">${u.telefone?'📲 '+formatarTelefoneExibicao(u.telefone):'📵 Sem WhatsApp'}</span>
+        <span class="usr-item-tag" style="color:${u.pin?'var(--green)':'var(--muted)'};font-size:.66rem;" title="${u.pin?'PIN ativo':'Sem PIN'}">${u.pin?'🔑 PIN ativo':'🔑 Sem PIN'}</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;">
+        <button class="usr-action-btn" title="Trocar ícone" onclick="editarIconeUsuario('${u.id}','${u.nome.replace(/'/g,"\\'")}','${u.icon}')">✏️ Ícone</button>
+        <button class="usr-action-btn" title="WhatsApp" onclick="editarTelefoneUsuario('${u.id}','${u.nome.replace(/'/g,"\\'")}','${u.telefone||''}')">📲</button>
+        <button class="usr-action-btn" title="PIN de acesso" onclick="editarPinUsuario('${u.id}','${u.nome.replace(/'/g,"\\'")}','${u.pin||''}')">🔑</button>
+        ${u.deviceId?`<button class="usr-action-btn" title="Liberar aparelho" onclick="liberarAparelho('${u.id}','${u.nome.replace(/'/g,"\\'")}')">🔓</button>`:''}
+        <button class="usr-action-btn danger" title="Remover pessoa" onclick="removerUsuario('${u.id}')">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+async function liberarAparelho(id,nome){
+  if(!isAdmin()){toast('🔒 Apenas o ADM pode gerenciar usuários.','red');return;}
+  if(!confirm('Liberar a trava de aparelho de "'+nome+'"? A pessoa poderá entrar em um novo celular/computador.'))return;
+  try{
+    await updateDoc(doc(db_fire,'usuarios',id),{deviceId:deleteField()});
+    toast('🔓 Aparelho de '+nome+' liberado.','green');
+  }catch(e){
+    toast('🔴 Falha ao liberar aparelho.','red');
+  }
+}
+
+async function editarIconeUsuario(id,nome,iconAtual){
+  abrirEmojiPicker('usuario',id,nome,iconAtual);
+}
+
+// ═══════════════════════════════
+// DETAIL (MANUTENÇÕES DA MÁQUINA)
+// ═══════════════════════════════
+function renderDetail(maqId){
+  const maq=db.maquinas.find(m=>m.id===maqId);
+  if(!maq){showHome();return;}
+  document.getElementById('detailHead').innerHTML=`
+    <div class="detail-icon" ${isAdmin()?`onclick="editarIconeMaquina('${maq.id}','${maq.nome.replace(/'/g,"\\'")}','${getMaqIcon(maq)}')" style="cursor:pointer;" title="Toque para trocar o ícone"`:''}>${getMaqIcon(maq)}</div>
+    <div style="flex:1;">
+      <div class="detail-nome">${maq.nome}${maq.patrim?' · Frota '+maq.patrim:''}</div>
+      <div class="detail-horim">⏱ Horímetro atual: ${maq.horim}h</div>
+    </div>
+    ${isAdmin()?`<button class="btn-del-maq" onclick="editarIconeMaquina('${maq.id}','${maq.nome.replace(/'/g,"\\'")}','${getMaqIcon(maq)}')" style="margin-right:6px;">✏️ Ícone</button><button class="btn-del-maq" onclick="editarFrotaMaquina('${maq.id}','${maq.nome.replace(/'/g,"\\'")}','${(maq.patrim||'').replace(/'/g,"\\'")}')" style="margin-right:6px;">✏️ Frota</button><button class="btn-del-maq" onclick="removerMaquina('${maq.id}')">🗑 Remover</button>`:''}`;
+
+  const manuts=db.manutencoes.filter(m=>m.maqId===maqId);
+  const listEl=document.getElementById('manutList');
+  if(!manuts.length){
+    listEl.innerHTML='<div class="empty-state"><div class="ei">🛠️</div>Nenhuma manutenção cadastrada para esta máquina.</div>';
+    return;
+  }
+  listEl.innerHTML=manuts.map(m=>{
+    const st=getStatus(m,maq.horim);
+    const prox=(m.ultimo||0)+m.intervalo;
+    const resta=prox-maq.horim;
+    const subTxt=st==='over'
+      ?'Vencida há '+Math.abs(Math.round(resta))+'h (próxima: '+prox+'h)'
+      :'Próxima: '+prox+'h · faltam '+Math.round(resta)+'h';
+    const btnTxt=st==='over'?'⚠ Registrar':(st==='alert'?'✔ Registrar':'Registrar');
+    const isOpen=openPanelId===m.id;
+    return`<div class="manut-item" id="mi-${m.id}">
+      <div class="manut-row">
+        <div>
+          <div class="manut-desc-wrap">
+            ${st==='over'?'<span class="manut-alert-icon" title="Manutenção vencida">🔧</span>':''}
+            <div class="manut-desc">${m.desc}</div>
+          </div>
+          <div class="manut-sub st-${st}">${subTxt}${m.obs?' · '+m.obs:''}</div>
+        </div>
+        <button class="btn-reg st-${st}" onclick="togglePanel('${m.id}')">${btnTxt}</button>
+        ${isAdmin()?`<button class="btn-del-manut" onclick="removerManutencao('${m.id}','${m.desc.replace(/'/g,"\\'")}')" title="Remover manutenção">🗑</button>`:''}
+      </div>
+      <div class="reg-panel ${isOpen?'open':''}" id="panel-${m.id}">
+        <div class="reg-title">Registrar manutenção realizada</div>
+        <div class="reg-field">
+          <label>Data do serviço${isAdmin()?' (pode ser retroativa)':''}</label>
+          ${isAdmin()
+            ? `<input type="datetime-local" id="rd-${m.id}" value="${toDatetimeLocal(new Date())}">`
+            : `<div class="reg-static-date">${new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})} (agora)</div>`}
+        </div>
+        <div class="reg-field">
+          <label>Responsável</label>
+          <input type="text" id="rr-${m.id}" value="${_usuario?_usuario.nome:''}">
+        </div>
+        <div class="reg-field">
+          <label>Horímetro ${isAdmin()?'(na data do serviço)':'atual'} (h)</label>
+          <input type="number" id="rh-${m.id}" value="${maq.horim}" min="0" step="0.1">
+          ${isAdmin()?`<div class="reg-hint">ℹ️ Como ADM, você pode informar um horímetro menor que o atual (${maq.horim}h) para lançar uma manutenção já realizada no passado. Isso não altera o horímetro atual da máquina.</div>`:''}
+        </div>
+        <div class="reg-field">
+          <label>Observações</label>
+          <textarea id="ro-${m.id}" rows="2" placeholder="${m.obs||'Ex: Óleo 15W40, 14L — filtro substituído'}"></textarea>
+        </div>
+        <div class="reg-field">
+          <label>Foto (comprovante, peça, nota fiscal — opcional)</label>
+          <input type="file" id="rf-${m.id}" accept="image/*" capture="environment">
+        </div>
+        <div class="reg-actions">
+          <button class="btn-ok" onclick="confirmarManut('${m.id}')">✔ Confirmar</button>
+          <button class="btn-cancel" onclick="togglePanel('${m.id}')">Cancelar</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toDatetimeLocal(d){
+  const pad=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function togglePanel(id){
+  openPanelId=openPanelId===id?null:id;
+  renderDetail(curMaqId);
+}
+
+async function removerManutencao(manutId,desc){
+  if(!isAdmin()){toast('🔒 Apenas o ADM pode remover manutenções cadastradas.','red');return;}
+  if(!confirm(`Remover a manutenção "${desc}"? O histórico já registrado dela não será apagado, só a regra de repetição/aviso.`))return;
+  await deleteDoc(doc(db_fire,'manutencoes',manutId));
+  toast('🗑 Manutenção removida.','yellow');
+}
+
+async function removerMaquina(maqId){
+  if(!isAdmin()){toast('🔒 Apenas o ADM João Divino pode remover máquinas.','red');return;}
+  const maq=db.maquinas.find(m=>m.id===maqId);
+  if(!maq)return;
+  const qtdManut=db.manutencoes.filter(m=>m.maqId===maqId).length;
+  const aviso=qtdManut?` Isso também removerá ${qtdManut} manutenção(ões) cadastrada(s) para ela.`:'';
+  if(!confirm(`Remover "${maq.nome}"?${aviso}`))return;
+
+  await deleteDoc(doc(db_fire,'maquinas',maqId));
+  const manuts=db.manutencoes.filter(m=>m.maqId===maqId);
+  for(const m of manuts) await deleteDoc(doc(db_fire,'manutencoes',m.id));
+
+  toast('🗑 '+maq.nome+' removida.','red');
+  showHome();
+}
+
+async function confirmarManut(manutId){
+  const manut=db.manutencoes.find(m=>m.id===manutId);
+  const maq=db.maquinas.find(m=>m.id===manut?.maqId);
+  if(!manut||!maq)return;
+
+  const dataVal=document.getElementById('rd-'+manutId)?.value;
+  const resp=(document.getElementById('rr-'+manutId)?.value||'').trim()||'Não informado';
+  const hVal=parseFloat(document.getElementById('rh-'+manutId)?.value);
+  const obs=(document.getElementById('ro-'+manutId)?.value||'').trim();
+
+  if(isNaN(hVal)||hVal<0){
+    toast('⚠️ Informe um horímetro válido.','red');
+    return;
+  }
+
+  const retroativo=hVal<maq.horim;
+  if(retroativo && !isAdmin()){
+    toast('⚠️ O horímetro deve ser ≥ ao atual ('+maq.horim+'h). Apenas o ADM pode registrar manutenções retroativas.','red');
+    return;
+  }
+
+  // Upload da foto do comprovante, se anexada
+  let fotoUrl=null;
+  const fotoInput=document.getElementById('rf-'+manutId);
+  const arquivo=fotoInput?.files?.[0];
+  if(arquivo){
+    toast('📷 Enviando foto...','blue');
+    try{
+      const ext=(arquivo.type.split('/')[1]||'jpg').split(';')[0];
+      const caminho=`manutencao-fotos/${manutId}_${Date.now()}.${ext}`;
+      const refFoto=storageRef(storage,caminho);
+      await uploadBytes(refFoto,arquivo,{contentType:arquivo.type});
+      fotoUrl=await getDownloadURL(refFoto);
+    }catch(e){
+      toast('⚠️ Falha ao enviar a foto, mas o registro será salvo mesmo assim.','yellow');
+    }
+  }
+
+  // Só atualiza o horímetro "ao vivo" da máquina se este registro for o mais recente
+  if(hVal>maq.horim){
+    await updateDoc(doc(db_fire,'maquinas',maq.id),{horim:hVal,lastUpdate:new Date().toISOString()});
+  }
+  // Só avança a contagem da manutenção se este horímetro for mais recente que o último registrado
+  if(hVal>(manut.ultimo||0)){
+    await updateDoc(doc(db_fire,'manutencoes',manutId),{ultimo:hVal});
+  }
+  const registroHist={
+    data:dataVal?new Date(dataVal).toISOString():new Date().toISOString(),
+    maqNome:maq.nome, maqPatrim:maq.patrim||'', manutDesc:manut.desc, horim:hVal, resp, obs, retroativo
+  };
+  if(fotoUrl) registroHist.fotoUrl=fotoUrl;
+  await addDoc(collection(db_fire,'historico'),registroHist);
+
+  openPanelId=null;
+  toast(retroativo?'✅ Manutenção retroativa registrada no histórico!':'✅ Manutenção confirmada! Próxima: '+(hVal+manut.intervalo)+'h','green');
+}
+
+// ═══════════════════════════════
+// HISTÓRICO (SOMENTE LEITURA)
+// ═══════════════════════════════
+let filtroHistMaquinas=new Set();
+
+function renderHistFiltro(){
+  const el=document.getElementById('histFiltro');
+  if(!el)return;
+  if(!db.maquinas.length){el.innerHTML='';return;}
+  const todasAtivo=filtroHistMaquinas.size===0;
+  el.innerHTML=`
+    <div class="hist-filtro-titulo">Filtrar por máquina</div>
+    <div class="hist-filtro-chips">
+      <button class="hist-chip ${todasAtivo?'active':''}" onclick="toggleFiltroHistMaquina(null)">Todas</button>
+      ${db.maquinas.map(m=>`<button class="hist-chip ${filtroHistMaquinas.has(m.nome)?'active':''}" onclick="toggleFiltroHistMaquina('${m.nome.replace(/'/g,"\\'")}')">${m.nome}</button>`).join('')}
+    </div>`;
+}
+
+function toggleFiltroHistMaquina(nome){
+  if(nome===null){ filtroHistMaquinas.clear(); }
+  else{
+    if(filtroHistMaquinas.has(nome)) filtroHistMaquinas.delete(nome);
+    else filtroHistMaquinas.add(nome);
+  }
+  renderHistFiltro();
+  renderHist();
+}
+
+function historicoFiltrado(){
+  if(filtroHistMaquinas.size===0) return db.historico;
+  return db.historico.filter(h=>filtroHistMaquinas.has(h.maqNome));
+}
+
+async function removerHistorico(histId){
+  if(!isAdmin()){toast('🔒 Apenas o ADM João Divino pode remover registros.','red');return;}
+  if(!confirm('Remover este registro do histórico? Esta ação não pode ser desfeita.'))return;
+  await deleteDoc(doc(db_fire,'historico',histId));
+  toast('🗑 Registro removido.','green');
+}
+
+function renderHist(){
+  renderHistFiltro();
+  const el=document.getElementById('histList');
+  const lista=historicoFiltrado();
+  if(!lista.length){
+    el.innerHTML='<div class="empty-state"><div class="ei">📋</div>Nenhuma manutenção registrada ainda.</div>';
+    return;
+  }
+  el.innerHTML=lista.map(h=>`
+    <div class="hist-item">
+      <div style="flex:1;min-width:0;">
+        <div class="hist-top"><span>${h.maqNome}${h.retroativo?' <span style="color:var(--yellow);font-size:.68rem;font-weight:600;">🕐 RETROATIVO</span>':''}</span><span style="color:var(--blue);font-family:'Share Tech Mono',monospace;">${h.horim}h</span></div>
+        <div class="hist-data">${new Date(h.data).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}</div>
+        <div class="hist-meta">${h.manutDesc} · 👤 ${h.resp}${h.obs?' · '+h.obs:''}</div>
+        ${h.fotoUrl?`<img src="${h.fotoUrl}" alt="Foto da manutenção" style="margin-top:6px;max-width:100px;max-height:100px;border-radius:8px;border:1px solid var(--border);cursor:pointer;" onclick="window.open('${h.fotoUrl}','_blank')">`:''}
+      </div>
+      ${isAdmin()?`<button class="btn-del-hist" onclick="removerHistorico('${h.id}')" title="Remover registro">🗑</button>`:''}
+    </div>`).join('');
+}
+
+// ═══════════════════════════════
+// HORÍMETRO
+// ═══════════════════════════════
+function renderHorim(){
+  const el=document.getElementById('horimList');
+  if(!db.maquinas.length){
+    el.innerHTML='<div class="empty-state"><div class="ei">⏱</div>Nenhuma máquina cadastrada ainda.</div>';
+    return;
+  }
+  el.innerHTML=db.maquinas.map(maq=>{
+    const st=statusMaquina(maq);
+    return`
+    <div class="hz-card${st==='over'?' st-over':''}">
+      <div class="hz-head">
+        <div class="hz-icon">${getMaqIcon(maq)}</div>
+        <div>
+          <div class="hz-nome">${maq.nome}${maq.patrim?' · Frota '+maq.patrim:''}</div>
+          <div class="hz-last">Atual: ${maq.horim}h</div>
+        </div>
+      </div>
+      ${st==='over'?'<div class="hz-warn">🔴⚠️ Manutenção vencida! Você pode atualizar o horímetro, mas a máquina segue precisando de manutenção.</div>':''}
+      <div class="hz-form">
+        <input type="number" id="hz-${maq.id}" placeholder="Nova leitura..." min="${maq.horim}" step="0.1"
+          onkeydown="if(event.key==='Enter')salvarHorimSimples('${maq.id}')">
+        <button onclick="salvarHorimSimples('${maq.id}')">💾 Salvar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function salvarHorimSimples(maqId){
+  const inp=document.getElementById('hz-'+maqId);
+  if(!inp)return;
+  const val=parseFloat(inp.value);
+  const maq=db.maquinas.find(m=>m.id===maqId);
+  if(!maq)return;
+  if(isNaN(val)||val<maq.horim){
+    toast('⚠️ O horímetro deve ser ≥ ao atual ('+maq.horim+'h)','red');return;
+  }
+  await updateDoc(doc(db_fire,'maquinas',maqId),{horim:val,lastUpdate:new Date().toISOString()});
+  inp.value='';
+
+  const manuts=db.manutencoes.filter(m=>m.maqId===maqId);
+  const aindaVencida=manuts.some(m=>getStatus(m,val)==='over');
+  if(aindaVencida){
+    toast('🔴⚠️ '+maq.nome+' atualizado para '+val+'h — mas a manutenção continua VENCIDA!','red');
+  }else{
+    toast('⏱ '+maq.nome+': atualizado para '+val+'h','blue');
+  }
+}
+
+// ═══════════════════════════════
+// COMBUSTÍVEL
+// ═══════════════════════════════
+function statusEstoque(){
+  const cap=db.estoque.capacidade||0;
+  if(!cap)return'ok';
+  const pct=(db.estoque.litros||0)/cap*100;
+  if(pct<=10)return'over';
+  if(pct<=25)return'alert';
+  return'ok';
+}
+
+function renderCombustivelSelect(){
+  const sel=document.getElementById('ab-maquina');
+  if(!sel)return;
+  const atual=sel.value;
+  sel.innerHTML=db.maquinas.length
+    ? db.maquinas.map(m=>`<option value="${m.id}">${m.nome}${m.patrim?' · Frota '+m.patrim:''}</option>`).join('')
+    : '<option value="">Nenhuma máquina cadastrada</option>';
+  if(atual && db.maquinas.some(m=>m.id===atual)) sel.value=atual;
+  atualizarHorimAbastecimento();
+}
+
+function atualizarHorimAbastecimento(){
+  const maqId=document.getElementById('ab-maquina')?.value;
+  const maq=db.maquinas.find(m=>m.id===maqId);
+  const inp=document.getElementById('ab-horim');
+  if(inp && maq) inp.value=maq.horim;
+  const precoInp=document.getElementById('ab-preco');
+  if(precoInp && !precoInp.value && db.estoque.precoUnitario) precoInp.value=db.estoque.precoUnitario;
+}
+
+// Calcula consumo médio de uma máquina pelo método "cheio a cheio":
+// cada abastecimento (a partir do 2º) representa os litros gastos
+// para rodar as horas desde o abastecimento anterior.
+function calcularConsumoMaquina(maqId){
+  const regs=db.abastecimentos.filter(a=>a.maqId===maqId).slice().sort((a,b)=>a.horim-b.horim);
+  const totalLitros=regs.reduce((s,r)=>s+r.litros,0);
+  const gastoRegs=regs.filter(r=>r.valorTotal!=null);
+  const totalGasto=gastoRegs.reduce((s,r)=>s+r.valorTotal,0);
+  const custoMedioAbastecimento = gastoRegs.length ? totalGasto/gastoRegs.length : null;
+  if(regs.length<2){
+    return{numAbastecimentos:regs.length,mediaLH:null,mediaLitros:regs.length?regs[0].litros:null,totalLitros,totalHoras:0,totalGasto,custoLH:null,custoMedioAbastecimento};
+  }
+  let totalLitrosConsumo=0, totalHoras=0, gastoConsumo=0;
+  for(let i=1;i<regs.length;i++){
+    const dh=regs[i].horim-regs[i-1].horim;
+    if(dh>0){
+      totalLitrosConsumo+=regs[i].litros; totalHoras+=dh;
+      if(regs[i].valorTotal!=null) gastoConsumo+=regs[i].valorTotal;
+    }
+  }
+  const mediaLH = totalHoras>0 ? totalLitrosConsumo/totalHoras : null;
+  const custoLH = totalHoras>0 && gastoConsumo>0 ? gastoConsumo/totalHoras : null;
+  const mediaLitros=totalLitros/regs.length;
+  return{numAbastecimentos:regs.length,mediaLH,mediaLitros,totalLitros,totalHoras,totalGasto,custoLH,custoMedioAbastecimento};
+}
+
+function renderCombustivel(){
+  const litros=db.estoque.litros||0;
+  const cap=db.estoque.capacidade||0;
+  const stEst=statusEstoque();
+  const txtEl=document.getElementById('estoqueLitrosTxt');
+  const fillEl=document.getElementById('estoqueBarFill');
+  const subEl=document.getElementById('estoqueSub');
+  if(txtEl) txtEl.textContent=litros.toLocaleString('pt-BR')+' L';
+  if(fillEl){
+    fillEl.className='tank-bar-fill st-'+stEst;
+    fillEl.style.width=cap?Math.min(100,Math.max(0,litros/cap*100))+'%':'100%';
+  }
+  if(subEl) subEl.textContent=cap?`Capacidade cadastrada: ${cap.toLocaleString('pt-BR')} L`:'Cadastre uma capacidade para ver o nível em barra.';
+  const capInp=document.getElementById('es-capacidade');
+  if(capInp && document.activeElement!==capInp) capInp.placeholder=cap?`Atual: ${cap} L`:'Ex: 5000';
+
+  const statsEl=document.getElementById('fuelStatsList');
+  if(statsEl){
+    if(!db.maquinas.length){
+      statsEl.innerHTML='<div class="empty-state"><div class="ei">⛽</div>Nenhuma máquina cadastrada ainda.</div>';
+    }else{
+      statsEl.innerHTML=db.maquinas.map(maq=>{
+        const c=calcularConsumoMaquina(maq.id);
+        return`<div class="fuel-card">
+          <div class="fuel-card-head">
+            <div class="fuel-icon">${getMaqIcon(maq)}</div>
+            <div>
+              <div class="fuel-nome">${maq.nome}${maq.patrim?' · Frota '+maq.patrim:''}</div>
+              <div class="fuel-meta">${c.numAbastecimentos} abastecimento(s) registrado(s)</div>
+            </div>
+          </div>
+          <div class="fuel-stats">
+            <div class="fuel-stat">Média de consumo<br><b>${c.mediaLH!=null?c.mediaLH.toFixed(2)+' L/h':'—'}</b></div>
+            <div class="fuel-stat">Média por abastecimento<br><b>${c.mediaLitros!=null?c.mediaLitros.toFixed(1)+' L':'—'}</b></div>
+            <div class="fuel-stat">Gasto total<br><b>${c.totalGasto>0?c.totalGasto.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'—'}</b></div>
+            <div class="fuel-stat">Custo por hora<br><b>${c.custoLH!=null?c.custoLH.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})+'/h':'—'}</b></div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  const listEl=document.getElementById('abastList');
+  if(listEl){
+    if(!db.abastecimentos.length){
+      listEl.innerHTML='<div class="empty-state"><div class="ei">⛽</div>Nenhum abastecimento registrado ainda.</div>';
+    }else{
+      const recentes=db.abastecimentos.slice().sort((a,b)=>new Date(b.data)-new Date(a.data)).slice(0,30);
+      listEl.innerHTML=recentes.map(a=>`
+        <div class="abast-item">
+          <div class="abast-info">
+            <div class="abast-top"><span>${a.maqNome}</span><span class="abast-litros">${a.litros}L${a.valorTotal!=null?' · <span class=\"abast-valor\">'+a.valorTotal.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})+'</span>':''}</span></div>
+            <div class="abast-meta">${new Date(a.data).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})} · ⏱ ${a.horim}h · 👤 ${a.resp}${a.preco!=null?' · R$ '+a.preco.toFixed(2)+'/L':''}${a.obs?' · '+a.obs:''}</div>
+            ${a.fotoUrl?`<img src="${a.fotoUrl}" alt="Foto da nota fiscal" style="margin-top:6px;max-width:100px;max-height:100px;border-radius:8px;border:1px solid var(--border);cursor:pointer;" onclick="window.open('${a.fotoUrl}','_blank')">`:''}
+          </div>
+          ${isAdmin()?`<button class="btn-del-abast" onclick="removerAbastecimento('${a.id}')" title="Remover registro">🗑</button>`:''}
+        </div>`).join('');
+    }
+  }
+}
+
+function calcularPrecoEntrada(){
+  const entrada=parseFloat(document.getElementById('es-entrada').value);
+  const valorTotal=parseFloat(document.getElementById('es-valortotal').value);
+  const wrap=document.getElementById('es-preco-wrap');
+  const out=document.getElementById('es-preco-calc');
+  if(entrada>0 && valorTotal>0){
+    const preco=valorTotal/entrada;
+    out.textContent=preco.toLocaleString('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:3})+' / L';
+    wrap.style.display='';
+  }else{
+    wrap.style.display='none';
+  }
+}
+
+async function salvarEntradaEstoque(){
+  const capInp=document.getElementById('es-capacidade');
+  const capVal=parseFloat(capInp.value);
+  const entrada=parseFloat(document.getElementById('es-entrada').value);
+  const valorTotal=parseFloat(document.getElementById('es-valortotal').value);
+  const obs=(document.getElementById('es-obs').value||'').trim();
+
+  if(!isNaN(capVal) && capVal>=0){
+    await setDoc(doc(db_fire,'estoqueCombustivel','estoque'),{capacidade:capVal},{merge:true});
+  }
+  if(isNaN(entrada)||entrada<=0){
+    if(isNaN(capVal)){ toast('⚠️ Informe uma capacidade ou uma entrada válida.','red'); }
+    else{ toast('✅ Capacidade do estoque atualizada!','green'); document.getElementById('es-entrada').value=''; document.getElementById('es-valortotal').value=''; document.getElementById('es-obs').value=''; calcularPrecoEntrada(); }
+    return;
+  }
+
+  const temValor=!isNaN(valorTotal)&&valorTotal>0;
+  const precoCalc=temValor?valorTotal/entrada:null;
+
+  // Upload da foto da nota fiscal, se anexada
+  let fotoUrl=null;
+  const fotoInput=document.getElementById('es-foto');
+  const arquivo=fotoInput?.files?.[0];
+  if(arquivo){
+    toast('📷 Enviando foto...','blue');
+    try{
+      const ext=(arquivo.type.split('/')[1]||'jpg').split(';')[0];
+      const caminho=`estoque-fotos/${Date.now()}.${ext}`;
+      const refFoto=storageRef(storage,caminho);
+      await uploadBytes(refFoto,arquivo,{contentType:arquivo.type});
+      fotoUrl=await getDownloadURL(refFoto);
+    }catch(e){
+      toast('⚠️ Falha ao enviar a foto, mas o registro será salvo mesmo assim.','yellow');
+    }
+  }
+
+  const litrosAtual=db.estoque.litros||0;
+  const novoTotal=litrosAtual+entrada;
+  await setDoc(doc(db_fire,'estoqueCombustivel','estoque'),{litros:novoTotal,lastUpdate:new Date().toISOString(), ...(temValor?{precoUnitario:precoCalc}:{})},{merge:true});
+  const registroEstoque={
+    data:new Date().toISOString(), maqNome:'— Estoque de combustível —', maqPatrim:'',
+    manutDesc:'Entrada de combustível', horim:0, resp:_usuario?_usuario.nome:'—',
+    obs:`+${entrada}L${temValor?' · '+valorTotal.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})+' ('+precoCalc.toLocaleString('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:3})+'/L)':''}${obs?' · '+obs:''} (estoque: ${novoTotal}L)`, retroativo:false
+  };
+  if(fotoUrl) registroEstoque.fotoUrl=fotoUrl;
+  await addDoc(collection(db_fire,'historico'),registroEstoque);
+
+  document.getElementById('es-entrada').value='';
+  document.getElementById('es-valortotal').value='';
+  document.getElementById('es-obs').value='';
+  if(fotoInput) fotoInput.value='';
+  calcularPrecoEntrada();
+  toast('✅ Entrada de '+entrada+'L'+(temValor?' a '+precoCalc.toLocaleString('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:3})+'/L':'')+' registrada no estoque!','green');
+}
+
+async function salvarAbastecimento(){
+  const maqId=document.getElementById('ab-maquina').value;
+  const horim=parseFloat(document.getElementById('ab-horim').value);
+  const litros=parseFloat(document.getElementById('ab-litros').value);
+  const precoInp=document.getElementById('ab-preco');
+  const preco=parseFloat(precoInp.value);
+  const resp=(document.getElementById('ab-resp').value||'').trim()||(_usuario?_usuario.nome:'Não informado');
+  const obs=(document.getElementById('ab-obs').value||'').trim();
+
+  if(!maqId){toast('⚠️ Selecione uma máquina!','red');return;}
+  const maq=db.maquinas.find(m=>m.id===maqId);
+  if(!maq)return;
+  if(isNaN(horim)||horim<0){toast('⚠️ Informe um horímetro válido.','red');return;}
+  if(isNaN(litros)||litros<=0){toast('⚠️ Informe os litros abastecidos.','red');return;}
+
+  const temPreco=!isNaN(preco)&&preco>0;
+  const valorTotal=temPreco?litros*preco:null;
+
+  const estoqueAtual=db.estoque.litros||0;
+  if(litros>estoqueAtual){
+    if(!confirm(`O estoque atual é de ${estoqueAtual}L, menor que os ${litros}L informados. Deseja registrar mesmo assim? (o estoque ficará negativo)`)) return;
+  }
+
+  const registro={
+    maqId, maqNome:maq.nome, maqPatrim:maq.patrim||'', data:new Date().toISOString(),
+    horim, litros, resp, obs
+  };
+  if(temPreco){ registro.preco=preco; registro.valorTotal=valorTotal; }
+
+  // Upload da foto da nota fiscal, se anexada
+  const fotoInput=document.getElementById('ab-foto');
+  const arquivo=fotoInput?.files?.[0];
+  if(arquivo){
+    toast('📷 Enviando foto...','blue');
+    try{
+      const ext=(arquivo.type.split('/')[1]||'jpg').split(';')[0];
+      const caminho=`abastecimento-fotos/${maqId}_${Date.now()}.${ext}`;
+      const refFoto=storageRef(storage,caminho);
+      await uploadBytes(refFoto,arquivo,{contentType:arquivo.type});
+      registro.fotoUrl=await getDownloadURL(refFoto);
+    }catch(e){
+      toast('⚠️ Falha ao enviar a foto, mas o registro será salvo mesmo assim.','yellow');
+    }
+  }
+
+  await addDoc(collection(db_fire,'abastecimentos'), registro);
+
+  await setDoc(doc(db_fire,'estoqueCombustivel','estoque'),{litros:estoqueAtual-litros,lastUpdate:new Date().toISOString(), ...(temPreco?{precoUnitario:preco}:{})},{merge:true});
+
+  if(horim>maq.horim){
+    await updateDoc(doc(db_fire,'maquinas',maq.id),{horim,lastUpdate:new Date().toISOString()});
+  }
+
+  document.getElementById('ab-litros').value='';
+  document.getElementById('ab-obs').value='';
+  if(fotoInput) fotoInput.value='';
+  toast('⛽ Abastecimento de '+litros+'L'+(temPreco?' ('+valorTotal.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})+')':'')+' registrado para '+maq.nome+'!','green');
+}
+
+async function removerAbastecimento(id){
+  if(!isAdmin()){toast('🔒 Apenas o ADM pode remover abastecimentos.','red');return;}
+  if(!confirm('Remover este registro de abastecimento? O estoque não será ajustado automaticamente.'))return;
+  await deleteDoc(doc(db_fire,'abastecimentos',id));
+  toast('🗑 Abastecimento removido.','yellow');
+}
+
+// ═══════════════════════════════
+// TERCEIRIZADOS
+// ═══════════════════════════════
+async function salvarNovoTerceirizado(){
+  const nome=(document.getElementById('tc-nome').value||'').trim();
+  const icon=(document.getElementById('tc-icon').value||'').trim()||'🤝';
+
+  if(!nome){toast('⚠️ Informe o nome do terceirizado!','red');return;}
+  if(db.terceirizados.some(t=>t.nome.toLowerCase()===nome.toLowerCase())){
+    toast('⚠️ Já existe um terceirizado com esse nome!','red');return;
+  }
+
+  await addDoc(collection(db_fire,'terceirizados'),{nome, icon, horimAtual:0});
+
+  document.getElementById('tc-nome').value='';
+  document.getElementById('tc-icon').value='';
+  toast('✅ '+nome+' adicionado(a) aos terceirizados!','green');
+}
+
+async function removerTerceirizado(id){
+  if(!isAdmin()){toast('🔒 Apenas o ADM pode remover terceirizados.','red');return;}
+  const t=db.terceirizados.find(x=>x.id===id);
+  if(!t)return;
+  const qtd=db.terceirizadosLanc.filter(l=>l.terceirizadoId===id).length;
+  const aviso=qtd?` Isso NÃO apaga os ${qtd} lançamento(s) já registrados, mas eles ficarão sem o prestador vinculado.`:'';
+  if(!confirm(`Remover "${t.nome}" da lista de terceirizados?${aviso}`))return;
+  await deleteDoc(doc(db_fire,'terceirizados',id));
+  toast('🗑 '+t.nome+' removido(a).','yellow');
+}
+
+function renderTerceirizadosSelect(){
+  const sel=document.getElementById('tc-select');
+  if(!sel)return;
+  const atual=sel.value;
+  sel.innerHTML=db.terceirizados.length
+    ? db.terceirizados.map(t=>`<option value="${t.id}">${t.icon||'🤝'} ${t.nome}</option>`).join('')
+    : '<option value="">Nenhum terceirizado cadastrado</option>';
+  if(atual && db.terceirizados.some(t=>t.id===atual)) sel.value=atual;
+  atualizarHorimTerceirizado();
+}
+
+// Sempre abre com o último horímetro final registrado para aquele terceirizado
+// (ou o horímetro inicial cadastrado nele, se ainda não houver nenhum lançamento)
+function atualizarHorimTerceirizado(){
+  const tcId=document.getElementById('tc-select')?.value;
+  const t=db.terceirizados.find(x=>x.id===tcId);
+  const inp=document.getElementById('tc-horim-ini');
+  const hint=document.getElementById('tc-horim-hint');
+  if(!inp)return;
+  if(!t){ inp.value=''; if(hint) hint.textContent=''; return; }
+
+  const lancs=db.terceirizadosLanc.filter(l=>l.terceirizadoId===tcId)
+    .slice().sort((a,b)=>new Date(b.data)-new Date(a.data));
+  const ultimo=lancs[0];
+  const valorIni=ultimo?ultimo.horimFinal:(t.horimAtual||0);
+  inp.value=valorIni;
+  if(hint) hint.textContent=ultimo
+    ? '📌 Preenchido com o último horímetro final registrado ('+valorIni+'h).'
+    : '📌 Nenhum lançamento anterior — usando o horímetro inicial cadastrado.';
+}
+
+async function salvarLancamentoTerceirizado(){
+  const tcId=document.getElementById('tc-select').value;
+  const t=db.terceirizados.find(x=>x.id===tcId);
+  if(!t){toast('⚠️ Selecione um terceirizado!','red');return;}
+
+  const dataInp=document.getElementById('tc-data').value;
+  const data=dataInp?new Date(dataInp+'T12:00:00').toISOString():new Date().toISOString();
+  const horimIni=parseFloat(document.getElementById('tc-horim-ini').value);
+  const horimFim=parseFloat(document.getElementById('tc-horim-fim').value);
+  const litrosInp=document.getElementById('tc-litros').value;
+  const litros=litrosInp!==''?parseFloat(litrosInp):null;
+  const resp=(document.getElementById('tc-resp').value||'').trim()||(_usuario?_usuario.nome:'Não informado');
+  const obs=(document.getElementById('tc-obs').value||'').trim();
+
+  if(isNaN(horimIni)||horimIni<0){toast('⚠️ Informe o horímetro inicial.','red');return;}
+  if(isNaN(horimFim)){toast('⚠️ Informe o horímetro final.','red');return;}
+  if(horimFim<horimIni){toast('⚠️ O horímetro final deve ser ≥ ao inicial ('+horimIni+'h).','red');return;}
+  if(litros!==null && (isNaN(litros)||litros<0)){toast('⚠️ Informe um valor de combustível válido.','red');return;}
+
+  const horas=+(horimFim-horimIni).toFixed(2);
+
+  await addDoc(collection(db_fire,'terceirizadosLanc'),{
+    terceirizadoId:tcId, terceirizadoNome:t.nome, terceirizadoIcon:t.icon||'🤝',
+    data, horimInicial:horimIni, horimFinal:horimFim, horas,
+    litros, resp, obs
+  });
+
+  await updateDoc(doc(db_fire,'terceirizados',tcId),{horimAtual:horimFim});
+
+  document.getElementById('tc-horim-fim').value='';
+  document.getElementById('tc-litros').value='';
+  document.getElementById('tc-obs').value='';
+  toast('✅ Lançamento de '+horas+'h para '+t.nome+' registrado!','green');
+}
+
+async function removerLancamentoTerceirizado(id){
+  if(!isAdmin()){toast('🔒 Apenas o ADM pode remover lançamentos.','red');return;}
+  if(!confirm('Remover este lançamento?'))return;
+  await deleteDoc(doc(db_fire,'terceirizadosLanc',id));
+  toast('🗑 Lançamento removido.','yellow');
+}
+
+function renderTerceirizadosLancList(){
+  const el=document.getElementById('tcLancList');
+  if(!el)return;
+  if(!db.terceirizadosLanc.length){
+    el.innerHTML='<div class="empty-state"><div class="ei">🤝</div>Nenhum lançamento registrado ainda.</div>';
+    return;
+  }
+  el.innerHTML=db.terceirizadosLanc.map(l=>{
+    const dataFmt=new Date(l.data).toLocaleDateString('pt-BR');
+    return`<div class="abast-item">
+      <div class="abast-info">
+        <div class="abast-top">
+          <span>${l.terceirizadoIcon||'🤝'} ${l.terceirizadoNome||'—'}</span>
+          <span class="abast-litros">${l.horas}h</span>
+        </div>
+        <div class="abast-meta">${dataFmt} · Horím. ${l.horimInicial}h → ${l.horimFinal}h${(l.litros!=null)?' · ⛽ '+l.litros+'L':''}</div>
+        <div class="abast-meta">👤 ${l.resp||'—'}${l.obs?' · '+l.obs:''}</div>
+      </div>
+      ${isAdmin()?`<button class="btn-del-abast" onclick="removerLancamentoTerceirizado('${l.id}')" title="Remover lançamento">🗑</button>`:''}
+    </div>`;
+  }).join('');
+}
+
+function renderTerceirizadosList(){
+  const el=document.getElementById('tcList');
+  if(!el)return;
+  if(!db.terceirizados.length){
+    el.innerHTML='<div class="empty-state"><div class="ei">👥</div>Nenhum terceirizado cadastrado ainda.</div>';
+    return;
+  }
+  el.innerHTML=db.terceirizados.map(t=>`
+    <div class="usr-item">
+      <div class="usr-item-icon">${t.icon||'🤝'}</div>
+      <div class="usr-item-info">
+        <div class="usr-item-nome">${t.nome}</div>
+        <div class="usr-item-tag" style="color:var(--muted);">⏱ Último horímetro: ${t.horimAtual||0}h</div>
+      </div>
+      ${isAdmin()?`<button class="btn-del-maq" onclick="removerTerceirizado('${t.id}')">🗑 Remover</button>`:''}
+    </div>`).join('');
+}
+
+// ═══════════════════════════════
+// CADASTRAR MÁQUINA
+// ═══════════════════════════════
+async function salvarNovaMaquina(){
+  const nome=(document.getElementById('nm-nome').value||'').trim();
+  const tipo=document.getElementById('nm-tipo').value;
+  const patrim=(document.getElementById('nm-patrim').value||'').trim();
+  const horim=parseFloat(document.getElementById('nm-horim').value)||0;
+
+  if(!nome){toast('⚠️ Informe o nome da máquina!','red');return;}
+  if(db.maquinas.some(m=>m.nome.toLowerCase()===nome.toLowerCase())){
+    toast('⚠️ Já existe uma máquina com esse nome!','red');return;
+  }
+
+  await addDoc(collection(db_fire,'maquinas'),{
+    nome, tipo, patrim, horim, lastUpdate:new Date().toISOString()
+  });
+
+  document.getElementById('nm-nome').value='';
+  document.getElementById('nm-patrim').value='';
+  document.getElementById('nm-horim').value='0';
+  document.getElementById('nm-tipo').value='trator';
+  toast('✅ '+nome+' cadastrada com sucesso!','green');
+}
+
+// ═══════════════════════════════
+// CADASTRAR MANUTENÇÃO
+// ═══════════════════════════════
+function renderCadastroSelect(){
+  const sel=document.getElementById('cm-maquina');
+  if(!sel)return;
+  const atual=sel.value;
+  sel.innerHTML=db.maquinas.length
+    ? db.maquinas.map(m=>`<option value="${m.id}">${m.nome}${m.patrim?' · Frota '+m.patrim:''}</option>`).join('')
+    : '<option value="">Nenhuma máquina cadastrada</option>';
+  if(atual && db.maquinas.some(m=>m.id===atual)) sel.value=atual;
+}
+
+async function salvarManutSimples(){
+  const maqId=document.getElementById('cm-maquina').value;
+  const descSel=document.getElementById('cm-desc').value;
+  const desc=(descSel==='__outro__'
+    ? (document.getElementById('cm-desc-outro').value||'').trim()
+    : descSel).trim();
+  const intervalo=parseFloat(document.getElementById('cm-intervalo').value);
+  const alerta=parseFloat(document.getElementById('cm-alerta').value)||10;
+  const obs=(document.getElementById('cm-obs').value||'').trim();
+
+  if(!maqId){toast('⚠️ Selecione uma máquina!','red');return;}
+  if(!desc){toast('⚠️ Descreva a manutenção!','red');return;}
+  if(isNaN(intervalo)||intervalo<=0){toast('⚠️ Intervalo inválido!','red');return;}
+
+  const maq=db.maquinas.find(m=>m.id===maqId);
+  await addDoc(collection(db_fire,'manutencoes'),{
+    maqId, desc, intervalo, alerta, obs, ultimo: maq?maq.horim:0
+  });
+
+  document.getElementById('cm-desc').value='';
+  document.getElementById('cm-desc-outro').value='';
+  document.getElementById('cm-desc-outro').style.display='none';
+  document.getElementById('cm-intervalo').value='';
+  document.getElementById('cm-alerta').value='10';
+  document.getElementById('cm-obs').value='';
+  toast('✅ Manutenção cadastrada para '+(maq?maq.nome:'')+'!','green');
+}
+
+// ═══════════════════════════════
+// RELATÓRIO EM PDF
+// ═══════════════════════════════
+function gerarPDF(){
+  const lista=historicoFiltrado();
+  if(!lista.length){toast('⚠️ Não há manutenções no histórico para gerar relatório.','red');return;}
+  const { jsPDF }=window.jspdf;
+  const docPdf=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const agora=new Date();
+
+  docPdf.setFontSize(16);
+  docPdf.setTextColor(30,30,30);
+  docPdf.text('Grupo agro', 14, 16);
+  docPdf.setFontSize(11);
+  docPdf.setTextColor(60,60,60);
+  docPdf.text('Controle de Manutenção — Relatório', 14, 22);
+  docPdf.setFontSize(9);
+  docPdf.setTextColor(100,100,100);
+  const filtroTxt=filtroHistMaquinas.size?('Máquinas: '+[...filtroHistMaquinas].join(', ')):'Todas as máquinas';
+  docPdf.text('Gerado em '+agora.toLocaleString('pt-BR')+' · '+filtroTxt, 14, 28);
+
+  const linhas=lista.map(h=>[
+    new Date(h.data).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}),
+    h.maqNome,
+    h.maqPatrim || (db.maquinas.find(m=>m.nome===h.maqNome)?.patrim) || '—',
+    h.manutDesc, h.horim+'h', h.resp, h.obs||'—'
+  ]);
+
+  docPdf.autoTable({
+    startY:34,
+    head:[['Data/Hora','Máquina','Frota','Manutenção','Horímetro','Responsável','Observações']],
+    body:linhas,
+    styles:{fontSize:8,cellPadding:2.2},
+    headStyles:{fillColor:[255,167,38],textColor:[20,20,20]},
+    alternateRowStyles:{fillColor:[245,245,245]},
+    margin:{left:14,right:14}
+  });
+
+  const pageCount=docPdf.internal.getNumberOfPages();
+  for(let i=1;i<=pageCount;i++){
+    docPdf.setPage(i);
+    docPdf.setFontSize(7.5);
+    docPdf.setTextColor(140,140,140);
+    docPdf.text('Desenvolvido por João Divino Barbosa', 14, docPdf.internal.pageSize.getHeight()-6);
+    docPdf.text('Página '+i+' de '+pageCount, docPdf.internal.pageSize.getWidth()-30, docPdf.internal.pageSize.getHeight()-6);
+  }
+
+  docPdf.save('relatorio-manutencoes-'+agora.toISOString().slice(0,10)+'.pdf');
+}
+
+function gerarPDFSituacao(){
+  if(!db.maquinas.length){toast('⚠️ Não há máquinas cadastradas.','red');return;}
+  const { jsPDF }=window.jspdf;
+  const docPdf=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const agora=new Date();
+
+  docPdf.setFontSize(16);
+  docPdf.setTextColor(30,30,30);
+  docPdf.text('Grupo agro', 14, 16);
+  docPdf.setFontSize(11);
+  docPdf.setTextColor(60,60,60);
+  docPdf.text('Situação Atual das Máquinas', 14, 22);
+  docPdf.setFontSize(9);
+  docPdf.setTextColor(100,100,100);
+  docPdf.text('Gerado em '+agora.toLocaleString('pt-BR')+' · Foto do momento, independente do histórico', 14, 28);
+
+  const linhas=[];
+  db.maquinas.slice().sort((a,b)=>a.nome.localeCompare(b.nome)).forEach(maq=>{
+    const manuts=db.manutencoes.filter(m=>m.maqId===maq.id);
+    if(!manuts.length){
+      linhas.push([maq.nome, maq.patrim||'—', maq.horim+'h', '—', 'Sem manutenção cadastrada', '—']);
+      return;
+    }
+    manuts.forEach(m=>{
+      const st=getStatus(m,maq.horim);
+      const prox=(m.ultimo||0)+m.intervalo;
+      const resta=prox-maq.horim;
+      const situacao=st==='over'
+        ?'Vencida há '+Math.abs(Math.round(resta))+'h'
+        :(st==='alert'?'Atenção · faltam '+Math.round(resta)+'h':'Em dia · faltam '+Math.round(resta)+'h');
+      linhas.push([maq.nome, maq.patrim||'—', maq.horim+'h', m.desc, situacao, prox+'h']);
+    });
+  });
+
+  docPdf.autoTable({
+    startY:34,
+    head:[['Máquina','Frota','Horímetro atual','Manutenção','Situação','Próxima troca']],
+    body:linhas,
+    styles:{fontSize:8,cellPadding:2.2},
+    headStyles:{fillColor:[255,167,38],textColor:[20,20,20]},
+    alternateRowStyles:{fillColor:[245,245,245]},
+    didParseCell:(data)=>{
+      if(data.section==='body' && data.column.index===4){
+        const txt=data.cell.raw;
+        if(typeof txt==='string' && txt.startsWith('Vencida')) data.cell.styles.textColor=[200,40,40];
+        else if(typeof txt==='string' && txt.startsWith('Atenção')) data.cell.styles.textColor=[180,120,10];
+      }
+    },
+    margin:{left:14,right:14}
+  });
+
+  const pageCount2=docPdf.internal.getNumberOfPages();
+  for(let i=1;i<=pageCount2;i++){
+    docPdf.setPage(i);
+    docPdf.setFontSize(7.5);
+    docPdf.setTextColor(140,140,140);
+    docPdf.text('Desenvolvido por João Divino Barbosa', 14, docPdf.internal.pageSize.getHeight()-6);
+    docPdf.text('Página '+i+' de '+pageCount2, docPdf.internal.pageSize.getWidth()-30, docPdf.internal.pageSize.getHeight()-6);
+  }
+
+  docPdf.save('situacao-maquinas-'+agora.toISOString().slice(0,10)+'.pdf');
+}
+
+// ═══════════════════════════════
+// CHAT DA EQUIPE
+// ═══════════════════════════════
+function gerarPDFCombustivel(){
+  if(!db.abastecimentos.length){toast('⚠️ Não há abastecimentos registrados.','red');return;}
+  const { jsPDF }=window.jspdf;
+  const docPdf=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const agora=new Date();
+
+  docPdf.setFontSize(16);
+  docPdf.setTextColor(30,30,30);
+  docPdf.text('Grupo agro', 14, 16);
+  docPdf.setFontSize(11);
+  docPdf.setTextColor(60,60,60);
+  docPdf.text('Relatório de Combustível', 14, 22);
+  docPdf.setFontSize(9);
+  docPdf.setTextColor(100,100,100);
+  docPdf.text('Gerado em '+agora.toLocaleString('pt-BR')+' · Estoque atual: '+(db.estoque.litros||0).toLocaleString('pt-BR')+' L', 14, 28);
+
+  const linhas=db.abastecimentos.slice().sort((a,b)=>new Date(b.data)-new Date(a.data)).map(a=>[
+    new Date(a.data).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}),
+    a.maqNome, a.horim+'h', a.litros+'L',
+    a.valorTotal!=null?a.valorTotal.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'—',
+    a.resp||'—', a.obs||'—'
+  ]);
+
+  docPdf.autoTable({
+    startY:34,
+    head:[['Data/Hora','Máquina','Horímetro','Litros','Valor','Responsável','Observações']],
+    body:linhas,
+    styles:{fontSize:8,cellPadding:2.2},
+    headStyles:{fillColor:[255,167,38],textColor:[20,20,20]},
+    alternateRowStyles:{fillColor:[245,245,245]},
+    margin:{left:14,right:14}
+  });
+
+  const pageCount=docPdf.internal.getNumberOfPages();
+  for(let i=1;i<=pageCount;i++){
+    docPdf.setPage(i);
+    docPdf.setFontSize(7.5);
+    docPdf.setTextColor(140,140,140);
+    docPdf.text('Desenvolvido por João Divino Barbosa', 14, docPdf.internal.pageSize.getHeight()-6);
+    docPdf.text('Página '+i+' de '+pageCount, docPdf.internal.pageSize.getWidth()-30, docPdf.internal.pageSize.getHeight()-6);
+  }
+
+  docPdf.save('relatorio-combustivel-'+agora.toISOString().slice(0,10)+'.pdf');
+}
+
+function escapeHtml(str){
+  const div=document.createElement('div');
+  div.textContent=str;
+  return div.innerHTML;
+}
+
+function renderChat(){
+  const el=document.getElementById('chatMessages');
+  if(!el)return;
+  if(!db.chat.length){
+    el.innerHTML='<div class="empty-state"><div class="ei">💬</div>Nenhuma mensagem ainda. Diga oi para a equipe!</div>';
+    return;
+  }
+  el.innerHTML=db.chat.map(m=>{
+    const mine=_usuario && m.usuarioId===_usuario.id;
+    const hora=new Date(m.data).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const corpo=m.tipo==='audio'
+      ?`<audio controls src="${m.audioUrl}"></audio>`
+      :`<div>${escapeHtml(m.texto||'')}</div>`;
+    return`<div class="chat-msg ${mine?'mine':'other'}">
+      ${!mine?`<div class="chat-meta">${m.usuarioIcon||''} ${m.usuarioNome||''}</div>`:''}
+      ${corpo}
+      <div class="chat-time">${hora}</div>
+    </div>`;
+  }).join('');
+  el.scrollTop=el.scrollHeight;
+}
+
+async function enviarChat(){
+  const inp=document.getElementById('chatInput');
+  const texto=(inp?.value||'').trim();
+  if(!texto||!_usuario)return;
+  inp.value='';
+  await addDoc(collection(db_fire,'chatManutencao'),{
+    usuarioId:_usuario.id, usuarioNome:_usuario.nome, usuarioIcon:_usuario.icon,
+    tipo:'texto', texto, data:new Date().toISOString()
+  });
+}
+
+// ---- Gravação de áudio ----
+let mediaRecorder=null;
+let audioChunks=[];
+let currentStream=null;
+let recordStartTime=null;
+let recordTimerInterval=null;
+
+async function iniciarGravacao(){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    toast('🎤 Este navegador não permite gravar áudio.','red');
+    return;
+  }
+  try{
+    currentStream=await navigator.mediaDevices.getUserMedia({audio:true});
+  }catch(e){
+    toast('🎤 Não foi possível acessar o microfone. Verifique a permissão.','red');
+    return;
+  }
+  audioChunks=[];
+  mediaRecorder=new MediaRecorder(currentStream);
+  mediaRecorder.ondataavailable=e=>{ if(e.data.size>0) audioChunks.push(e.data); };
+  mediaRecorder.start();
+  recordStartTime=Date.now();
+  document.getElementById('chatInputbarNormal').style.display='none';
+  document.getElementById('chatRecordingBar').style.display='flex';
+  document.getElementById('recTimer').textContent='00:00';
+  recordTimerInterval=setInterval(()=>{
+    const s=Math.floor((Date.now()-recordStartTime)/1000);
+    const mm=String(Math.floor(s/60)).padStart(2,'0');
+    const ss=String(s%60).padStart(2,'0');
+    const el=document.getElementById('recTimer');
+    if(el) el.textContent=mm+':'+ss;
+  },250);
+}
+
+function pararStreamGravacao(){
+  clearInterval(recordTimerInterval);
+  recordTimerInterval=null;
+  if(currentStream){ currentStream.getTracks().forEach(t=>t.stop()); currentStream=null; }
+  document.getElementById('chatInputbarNormal').style.display='flex';
+  document.getElementById('chatRecordingBar').style.display='none';
+}
+
+function cancelarGravacao(){
+  if(mediaRecorder&&mediaRecorder.state!=='inactive'){
+    mediaRecorder.onstop=null;
+    mediaRecorder.stop();
+  }
+  audioChunks=[];
+  pararStreamGravacao();
+}
+
+function finalizarEEnviarAudio(){
+  if(!mediaRecorder||mediaRecorder.state==='inactive'){ pararStreamGravacao(); return; }
+  const duracaoSeg=Math.round((Date.now()-recordStartTime)/1000);
+  mediaRecorder.onstop=async ()=>{
+    pararStreamGravacao();
+    if(duracaoSeg<1){ toast('🎤 Gravação muito curta.','yellow'); return; }
+    const blob=new Blob(audioChunks,{type:mediaRecorder.mimeType||'audio/webm'});
+    await enviarAudio(blob,duracaoSeg);
+  };
+  mediaRecorder.stop();
+}
+
+async function enviarAudio(blob,duracaoSeg){
+  if(!_usuario)return;
+  toast('🎤 Enviando áudio...','blue');
+  try{
+    const ext=(blob.type.split('/')[1]||'webm').split(';')[0];
+    const caminho=`chat-audios/${_usuario.id}_${Date.now()}.${ext}`;
+    const refAudio=storageRef(storage,caminho);
+    await uploadBytes(refAudio,blob,{contentType:blob.type});
+    const url=await getDownloadURL(refAudio);
+    await addDoc(collection(db_fire,'chatManutencao'),{
+      usuarioId:_usuario.id, usuarioNome:_usuario.nome, usuarioIcon:_usuario.icon,
+      tipo:'audio', audioUrl:url, duracao:duracaoSeg, data:new Date().toISOString()
+    });
+  }catch(e){
+    toast('🔴 Falha ao enviar áudio. Verifique sua conexão.','red');
+  }
+}
+
+// ═══════════════════════════════
+// TOAST
+// ═══════════════════════════════
+let toastTimer=null;
+function toast(msg,cor){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.className='show'+(cor?' '+cor:'');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),3200);
+}
+
+// expõe funções usadas em onclick no HTML
+window.entrar=entrar;
+window.logout=logout;
+window.abrirMaquina=abrirMaquina;
+window.showHome=showHome;
+window.showHorim=showHorim;
+window.showCadastro=showCadastro;
+window.switchCadTab=switchCadTab;
+window.renderCadManutencoesList=renderCadManutencoesList;
+window.showHist=showHist;
+window.showCombustivel=showCombustivel;
+window.atualizarHorimAbastecimento=atualizarHorimAbastecimento;
+window.salvarEntradaEstoque=salvarEntradaEstoque;
+window.calcularPrecoEntrada=calcularPrecoEntrada;
+window.salvarAbastecimento=salvarAbastecimento;
+window.removerAbastecimento=removerAbastecimento;
+window.showTerceirizados=showTerceirizados;
+window.salvarNovoTerceirizado=salvarNovoTerceirizado;
+window.removerTerceirizado=removerTerceirizado;
+window.atualizarHorimTerceirizado=atualizarHorimTerceirizado;
+window.salvarLancamentoTerceirizado=salvarLancamentoTerceirizado;
+window.removerLancamentoTerceirizado=removerLancamentoTerceirizado;
+window.togglePanel=togglePanel;
+window.confirmarManut=confirmarManut;
+window.removerManutencao=removerManutencao;
+window.removerMaquina=removerMaquina;
+window.salvarHorimSimples=salvarHorimSimples;
+window.salvarManutSimples=salvarManutSimples;
+window.gerarPDF=gerarPDF;
+window.gerarPDFSituacao=gerarPDFSituacao;
+window.gerarPDFCombustivel=gerarPDFCombustivel;
+window.toggleFiltroHistMaquina=toggleFiltroHistMaquina;
+window.removerHistorico=removerHistorico;
+window.showUsuarios=showUsuarios;
+window.salvarNovoUsuario=salvarNovoUsuario;
+window.removerUsuario=removerUsuario;
+window.liberarAparelho=liberarAparelho;
+window.instalarApp=instalarApp;
+window.showChat=showChat;
+window.enviarChat=enviarChat;
+window.iniciarGravacao=iniciarGravacao;
+window.cancelarGravacao=cancelarGravacao;
+window.finalizarEEnviarAudio=finalizarEEnviarAudio;
+window.silenciarAlarme=silenciarAlarme;
+window.editarIconeUsuario=editarIconeUsuario;
+window.salvarNovaMaquina=salvarNovaMaquina;
+window.editarIconeMaquina=editarIconeMaquina;
+window.editarFrotaMaquina=editarFrotaMaquina;
+window.abrirEmojiPicker=abrirEmojiPicker;
+window.fecharEmojiPicker=fecharEmojiPicker;
+window.selecionarEmoji=selecionarEmoji;
+window.confirmarEmojiCustom=confirmarEmojiCustom;
+window.editarTelefoneUsuario=editarTelefoneUsuario;
+window.editarPinUsuario=editarPinUsuario;
+window.exportarBackupCompleto=exportarBackupCompleto;
+window.abrirNotificarWhatsapp=abrirNotificarWhatsapp;
+window.fecharNotificarWhatsapp=fecharNotificarWhatsapp;
+</script>
+</body>
+</html>
